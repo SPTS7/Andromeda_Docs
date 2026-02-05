@@ -1,0 +1,26 @@
+site_name: Andromeda Server Docs
+theme:
+  name: material
+  palette: 
+    scheme: slate
+    primary: deep purple
+    accent: teal
+  features:
+    - navigation.indexes
+    - navigation.sections
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Splash: index.md
+  - Home: home.md
+  - Containers: containers/index.md
+  - Network: network.md
+  - Storage: storage.md
