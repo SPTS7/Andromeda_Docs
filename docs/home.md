@@ -1,6 +1,13 @@
 # Documentation Home
 
-Welcome to the Andromeda Server Documentation.
+Welcome to the Andromeda Homelab Documentation.
+
+## Hardware
+
+-   **CPU:** Intel Core i7-8700K
+-   **RAM:** 32GB
+-   **SSD:** 512GB
+-   **HDD:** 1TB
 
 <div class="grid cards" markdown>
 
