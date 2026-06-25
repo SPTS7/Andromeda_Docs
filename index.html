@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andromeda Server Control Center</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            background-color: #060608;
+            font-family: 'Inter', sans-serif;
+            color: #e1e1e6;
+            overflow-x: hidden;
+        }
+
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(17, 17, 21, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card-hover:hover {
+            transform: translateY(-2px);
+            background: rgba(22, 22, 28, 0.7);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.15);
+        }
+
+        /* SVG Path Flow Telemetry Keyframes */
+        @keyframes flow-active {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .path-flow {
+            stroke-dasharray: 6 4;
+            animation: flow-active 1.5s linear infinite;
+        }
+
+        .path-flow-fast {
+            stroke-dasharray: 8 4;
+            animation: flow-active 0.8s linear infinite;
+        }
+
+        /* SVG Node Hover Scaling */
+        .svg-node {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+
+        .svg-node:hover {
+            transform: scale(1.03);
+            filter: drop-shadow(0 0 6px var(--node-color, rgba(255,255,255,0.2)));
+        }
+
+        /* Sleek scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="flex flex-col lg:flex-row min-h-screen w-full">
+        <!-- Dashboard components injected by vanilla JS engine -->
+    </div>
+
+    <script>
+        // --- Inline SVGs (HTML Helpers) ---
+        const getShieldSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+        `;
+        const getCpuSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><rect x="4" y="4" width="16" height="16" rx="2" ry="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" /></svg>
+        `;
+        const getHardDriveSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><line x1="22" y1="12" x2="2" y2="12" /><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /><line x1="6" y1="16" x2="6.01" y2="16" /><line x1="10" y1="16" x2="10.01" y2="16" /></svg>
+        `;
+        const getNetworkSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" /></svg>
+        `;
+        const getGlobeSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+        `;
+        const getActivitySvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+        `;
+        const getBotSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /><line x1="8" y1="16" x2="8" y2="16" /><line x1="16" y1="16" x2="16" y2="16" /></svg>
+        `;
+        const getBookOpenSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+        `;
+        const getCopySvg = (size = 16, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+        `;
+        const getExternalLinkSvg = (size = 16, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+        `;
+        const getInfoSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+        `;
+        const getServerSvg = (size = 20, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" /><line x1="20" y1="6" x2="20.01" y2="6" /><line x1="20" y1="18" x2="20.01" y2="18" /></svg>
+        `;
+        const getSearchSvg = (size = 18, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        `;
+        const getTerminalSvg = (size = 18, className = "") => `
+            <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" /></svg>
+        `;
+
+        // --- Container Specs Dataset ---
+        const containersData = {
+            docker: { id: "100", name: "docker", status: "running", ip: "192.168.1.0", bridge: "vmbr0", cpu: 2, ram: "2.00 GiB", ramVal: 2, disk: "4.00 GiB", diskVal: 4, desc: "Docker LXC environment for running containerized workloads, databases, and application runtimes. This serves as the host VM for standalone Docker containers that do not warrant individual LXCs.", tags: ["core", "docker"], color: "#3b82f6", docLink: "https://www.docker.com/", scriptLink: "https://helper-scripts.com/" },
+            openwebui: { id: "101", name: "openwebui", status: "running", ip: "192.168.1.1", bridge: "vmbr0", cpu: 4, ram: "8.00 GiB", ramVal: 8, disk: "50.00 GiB", diskVal: 50, desc: "Web-based UI for interacting with local Large Language Models (LLMs) via Ollama. It supports multi-user login, chat history, custom agent presets, and RAG document ingestion pipelines.", tags: ["ai", "ui", "automation"], color: "#eab308", docLink: "https://docs.openwebui.com/", scriptLink: "https://helper-scripts.com/" },
+            homepage: { id: "102", name: "homepage", status: "running", ip: "192.168.1.2", bridge: "vmbr0", cpu: 2, ram: "4.00 GiB", ramVal: 4, disk: "6.00 GiB", diskVal: 6, desc: "A modern, static, fast, secure application dashboard. It features live service integration widgets for Proxmox, Docker, Jellyfin, qBittorrent, and more, displaying metrics directly.", tags: ["dashboard", "ui"], color: "#64748b", docLink: "https://gethomepage.dev/", scriptLink: "https://helper-scripts.com/" },
+            jellyfin: { id: "103", name: "jellyfin", status: "running", ip: "192.168.1.3", bridge: "vmbr0", cpu: 4, ram: "4.00 GiB", ramVal: 4, disk: "16.00 GiB", diskVal: 16, desc: "The Free Software Media System. Manages, catalogs, streams, and transcodes large movie, TV show, and music collections for client players on the local network and Tailscale.", tags: ["media", "streaming"], color: "#3b82f6", docLink: "https://jellyfin.org/", scriptLink: "https://helper-scripts.com/" },
+            jellyseerr: { id: "104", name: "jellyseerr", status: "running", ip: "192.168.1.4", bridge: "vmbr0", cpu: 4, ram: "4.00 GiB", ramVal: 4, disk: "8.00 GiB", diskVal: 8, desc: "A request management system for Jellyfin media server. It connects to Sonarr and Radarr PVR stacks to trigger automated media downloads requested by users.", tags: ["media", "requests"], color: "#3b82f6", docLink: "https://github.com/Fallenbagel/jellyseerr", scriptLink: "https://helper-scripts.com/" },
+            prowlarr: { id: "105", name: "prowlarr", status: "running", ip: "192.168.1.5", bridge: "vmbr0", cpu: 2, ram: "1.00 GiB", ramVal: 1, disk: "4.00 GiB", diskVal: 4, desc: "Indexer manager/proxy integrating Usenet indexers and BitTorrent trackers with Radarr, Sonarr, Lidarr, and read pipelines. Automatically synchronizes indexer configurations across PVR apps.", tags: ["arr", "network"], color: "#f97316", docLink: "https://prowlarr.com/", scriptLink: "https://helper-scripts.com/" },
+            bazarr: { id: "106", name: "bazarr", status: "running", ip: "192.168.1.6", bridge: "vmbr0", cpu: 2, ram: "1.00 GiB", ramVal: 1, disk: "4.00 GiB", diskVal: 4, desc: "Companion subtitle downloading agent. It queries audio tracks of movies/shows managed by Sonarr/Radarr and fetches translations from OpenSubtitles, Subscene, and other providers.", tags: ["arr", "subtitles"], color: "#f97316", docLink: "https://www.bazarr.media/", scriptLink: "https://helper-scripts.com/" },
+            sonarr: { id: "107", name: "sonarr", status: "running", ip: "192.168.1.7", bridge: "vmbr0", cpu: 2, ram: "1.00 GiB", ramVal: 1, disk: "4.00 GiB", diskVal: 4, desc: "Smart TV show PVR downloader. TV shows are fetched automatically from feeds, processed using qBittorrent, and organized into library pools.", tags: ["arr", "pvr"], color: "#f97316", docLink: "https://sonarr.tv/", scriptLink: "https://helper-scripts.com/" },
+            radarr: { id: "108", name: "radarr", status: "running", ip: "192.168.1.8", bridge: "vmbr0", cpu: 2, ram: "1.00 GiB", ramVal: 1, disk: "4.00 GiB", diskVal: 4, desc: "Movie collection manager. Scrapes trackers for new releases, manages quality profiles, automates qBittorrent download sequences, and maintains local library structures.", tags: ["arr", "pvr"], color: "#f97316", docLink: "https://radarr.video/", scriptLink: "https://helper-scripts.com/" },
+            wireguard: { id: "109", name: "wireguard", status: "running", ip: "192.168.1.9", bridge: "vmbr0", cpu: 1, ram: "512.00 MiB", ramVal: 0.5, disk: "4.00 GiB", diskVal: 4, desc: "Fast, modern, and secure VPN tunnel. Routes indexer scrapes and active download client torrent protocols securely through a secure VPN connection.", tags: ["vpn", "network", "security"], color: "#8b5cf6", docLink: "https://www.wireguard.com/", scriptLink: "https://helper-scripts.com/" },
+            qbittorrent: { id: "110", name: "qbittorrent", status: "running", ip: "192.168.1.10", bridge: "vmbr0", cpu: 2, ram: "2.00 GiB", ramVal: 2, disk: "8.00 GiB", diskVal: 8, desc: "Bittorrent client managing all download stacks. Mounted directly to storage pools. Has its default gateway locked to WireGuard container (CT 109) to prevent IP leakage.", tags: ["torrent", "network"], color: "#10b981", docLink: "https://www.qbittorrent.org/", scriptLink: "https://helper-scripts.com/" },
+            bentopdf: { id: "111", name: "bentopdf", status: "running", ip: "192.168.1.11", bridge: "vmbr0", cpu: 1, ram: "4.00 GiB", ramVal: 4, disk: "4.00 GiB", diskVal: 4, desc: "A lightweight, beautiful, web-based PDF tool suite that allows splits, merges, watermarks, rotations, compressions, and pages extraction locally with maximum privacy.", tags: ["utility", "pdf"], color: "#64748b", docLink: "https://github.com/hhrutter/pdfcpu", scriptLink: "https://helper-scripts.com/" },
+            "paperless-ngx": { id: "112", name: "paperless-ngx", status: "running", ip: "192.168.1.12", bridge: "vmbr0", cpu: 2, ram: "2.00 GiB", ramVal: 2, disk: "10.00 GiB", diskVal: 10, desc: "A document management system. Scans, runs optical character recognition (OCR), labels, and indexes all paper receipts, invoices, and physical documentation for searchability.", tags: ["utility", "documents"], color: "#64748b", docLink: "https://docs.paperless-ngx.com/", scriptLink: "https://helper-scripts.com/" },
+            flaresolverr: { id: "113", name: "flaresolverr", status: "running", ip: "192.168.1.13", bridge: "vmbr0", cpu: 2, ram: "2.00 GiB", ramVal: 2, disk: "4.00 GiB", diskVal: 4, desc: "Proxy server to bypass Cloudflare protection scripts, keeping indexing pipelines scraping torrent databases operational.", tags: ["utility", "proxy"], color: "#64748b", docLink: "https://github.com/FlareSolverr/FlareSolverr", scriptLink: "https://helper-scripts.com/" },
+            n8n: { id: "114", name: "n8n", status: "running", ip: "192.168.1.14", bridge: "vmbr0", cpu: 2, ram: "2.00 GiB", ramVal: 2, disk: "10.00 GiB", diskVal: 10, desc: "Workflow automation tool connecting services, databases, local agents, and smart schedules. Alternative to Zapier with fair-code licensing.", tags: ["automation", "workflows"], color: "#eab308", docLink: "https://n8n.io/", scriptLink: "https://helper-scripts.com/" },
+            ollama: { id: "115", name: "ollama", status: "running", ip: "192.168.1.15", bridge: "vmbr0", cpu: 4, ram: "4.00 GiB", ramVal: 4, disk: "35.00 GiB", diskVal: 35, desc: "Local inference engine running LLMs and embedding models. Serves requests for Open WebUI and n8n pipelines, offering private and free completions.", tags: ["ai", "inference"], color: "#eab308", docLink: "https://ollama.com/", scriptLink: "https://helper-scripts.com/" },
+            pulse: { id: "116", name: "pulse", status: "running", ip: "192.168.1.16", bridge: "vmbr0", cpu: 1, ram: "1.00 GiB", ramVal: 1, disk: "4.00 GiB", diskVal: 4, desc: "Real-time Proxmox VE monitoring dashboard. Pulls hypervisor load levels, temperature values, disk smart health statuses, and publishes alerts on anomalies.", tags: ["monitoring", "ops"], color: "#64748b", docLink: "https://github.com/lucascaro/pulse", scriptLink: "https://helper-scripts.com/" },
+            hermesagent: { id: "117", name: "hermesagent", status: "running", ip: "DHCP", bridge: "vmbr0", cpu: 2, ram: "4.00 GiB", ramVal: 4, disk: "20.00 GiB", diskVal: 20, desc: "AI agent platform for autonomous task execution. Leverages tool APIs, scripts, local ollama, and n8n webhooks to automate server management workflows.", tags: ["ai", "agent", "automation"], color: "#a855f7", docLink: "https://hermes-agent.nousresearch.com/docs/", scriptLink: "https://community-scripts.org/" },
+            lidarr: { id: "118", name: "lidarr", status: "running", ip: "192.168.1.18", bridge: "vmbr0", cpu: 2, ram: "1.00 GiB", ramVal: 1, disk: "4.00 GiB", diskVal: 4, desc: "Music collection manager and PVR for Usenet and BitTorrent. Automatically tracks artists, fetches releases, and processes albums into bulk storage libraries.", tags: ["arr", "pvr"], color: "#f97316", docLink: "https://lidarr.audio/", scriptLink: "https://helper-scripts.com/" }
+        };
+
+        const labelToKey = {
+            "Wireguard": "wireguard",
+            "qBittorrent": "qbittorrent",
+            "Prowlarr": "prowlarr",
+            "Jellyfin": "jellyfin",
+            "Jellyseerr": "jellyseerr",
+            "Sonarr": "sonarr",
+            "Radarr": "radarr",
+            "Bazarr": "bazarr",
+            "Lidarr": "lidarr",
+            "Flaresolverr": "flaresolverr",
+            "Ollama": "ollama",
+            "Open WebUI": "openwebui",
+            "n8n": "n8n",
+            "Hermes": "hermesagent",
+            "Homepage": "homepage",
+            "Pulse": "pulse",
+            "Paperless": "paperless-ngx",
+            "BentoPDF": "bentopdf"
+        };
+
+        const colors = {
+            bg: '#060608',
+            card: '#111116',
+            border: '#202028',
+            text: '#e1e1e6',
+            subtext: '#8a8a9e',
+            vpn: '#8b5cf6',
+            net: '#10b981',
+            media: '#3b82f6',
+            arr: '#f97316',
+            ai: '#eab308',
+            dash: '#64748b',
+            storage: '#ec4899',
+            exterior: '#06b6d4',
+            agent: '#a855f7'
+        };
+
+        // --- Application State Manager ---
+        const state = {
+            currentTab: 'dashboard',
+            selectedNode: null, // null means Proxmox Host overall
+            activeFlow: 'all',
+            simulating: true,
+            searchQuery: '',
+            filterTag: 'all',
+            detailContainer: null,
+            copySuccess: false,
+            hostMetrics: {
+                cpu: 28.4,
+                ram: 20.4,
+                tx: 2.3,
+                rx: 7.2,
+                cpuHistory: [25, 28, 30, 26, 32, 29, 35, 31, 28, 31]
+            },
+            containerWorkloads: {}
+        };
+
+        // Populate initial container workloads
+        Object.keys(containersData).forEach(key => {
+            state.containerWorkloads[key] = { cpu: 1.1, ram: 15 };
+        });
+
+        // Set up Simulation Timer (fluctuates metric values in state)
+        setInterval(() => {
+            if (state.simulating) {
+                // Host CPU
+                const change = (Math.random() - 0.5) * 4;
+                const newCpu = Math.max(12, Math.min(85, +(state.hostMetrics.cpu + change).toFixed(1)));
+                state.hostMetrics.cpu = newCpu;
+                state.hostMetrics.cpuHistory.push(newCpu);
+                if (state.hostMetrics.cpuHistory.length > 10) state.hostMetrics.cpuHistory.shift();
+
+                // Host network
+                const txChange = (Math.random() - 0.5) * 0.8;
+                const rxChange = (Math.random() - 0.5) * 2;
+                state.hostMetrics.tx = Math.max(0.2, Math.min(20, +(state.hostMetrics.tx + txChange).toFixed(1)));
+                state.hostMetrics.rx = Math.max(0.5, Math.min(85, +(state.hostMetrics.rx + rxChange).toFixed(1)));
+
+                // Host RAM
+                const ramChange = (Math.random() - 0.5) * 0.1;
+                state.hostMetrics.ram = Math.max(18, Math.min(23, +(state.hostMetrics.ram + ramChange).toFixed(1)));
+
+                // Container loads
+                Object.keys(containersData).forEach(key => {
+                    let baseCpu = 0.5;
+                    let baseRam = 12;
+                    if (key === 'jellyfin') { baseCpu = Math.random() > 0.8 ? 48 : 6; baseRam = 45; }
+                    else if (key === 'ollama') { baseCpu = Math.random() > 0.85 ? 85 : 1.1; baseRam = 80; }
+                    else if (key === 'openwebui') { baseCpu = 1.8; baseRam = 20; }
+                    else if (key === 'qbittorrent') { baseCpu = 3; baseRam = 26; }
+                    else if (key === 'hermesagent') { baseCpu = 4; baseRam = 30; }
+
+                    state.containerWorkloads[key] = {
+                        cpu: +(baseCpu + Math.random() * 2).toFixed(1),
+                        ram: Math.max(5, Math.min(95, +(baseRam + (Math.random() - 0.5) * 3).toFixed(1)))
+                    };
+                });
+
+                // Update the visual representation
+                updateUI();
+            }
+        }, 1500);
+
+        // --- Global Interactive Action Handlers (Accessible from HTML) ---
+        window.selectTab = (tabId) => {
+            state.currentTab = tabId;
+            updateUI();
+        };
+
+        window.selectNode = (label) => {
+            const key = labelToKey[label];
+            if (key && containersData[key]) {
+                state.selectedNode = containersData[key];
+            } else {
+                state.selectedNode = null;
+            }
+            updateUI();
+        };
+
+        window.clearSelectedNode = () => {
+            state.selectedNode = null;
+            updateUI();
+        };
+
+        window.selectFlow = (flowId) => {
+            state.activeFlow = flowId;
+            updateUI();
+        };
+
+        window.toggleSimulation = () => {
+            state.simulating = !state.simulating;
+            updateUI();
+        };
+
+        window.openContainerDetail = (id) => {
+            if (containersData[id]) {
+                state.detailContainer = containersData[id];
+            }
+            updateUI();
+        };
+
+        window.closeContainerDetail = () => {
+            state.detailContainer = null;
+            updateUI();
+        };
+
+        window.copyIp = (ip) => {
+            if (ip === 'DHCP') return;
+            navigator.clipboard.writeText(ip);
+            state.copySuccess = true;
+            updateUI();
+            setTimeout(() => {
+                state.copySuccess = false;
+                updateUI();
+            }, 2000);
+        };
+
+        window.setSearchQuery = (query) => {
+            state.searchQuery = query;
+            updateUI();
+        };
+
+        window.setFilterTag = (tag) => {
+            state.filterTag = tag;
+            updateUI();
+        };
+
+        // --- UI Rendering Engine (Vanilla ES6 Templates) ---
+        function updateUI() {
+            const container = document.getElementById('app');
+            if (!container) return;
+
+            // Generate overall Layout
+            container.innerHTML = `
+                <!-- Left Navigation Bar -->
+                ${renderSidebar()}
+
+                <!-- Center Panel Content -->
+                <div class="flex-1 lg:pl-64 flex flex-col min-h-screen">
+                    <!-- Top Status Strip -->
+                    <header class="border-b border-gray-900 p-4 lg:p-6 bg-[#0c0c0e]/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-xl lg:text-2xl font-extrabold font-outfit text-white tracking-tight flex items-center gap-2">
+                                <span>Andromeda Hypervisor Panel</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-normal uppercase tracking-widest">Online</span>
+                            </h1>
+                            <p class="text-xs text-gray-500 font-medium mt-1">Dell Precision Proxmox Host Docs & Infrastructure Dashboard</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-xs font-semibold text-gray-400 font-mono uppercase tracking-wider">Host Node: virtual-eno1</span>
+                        </div>
+                    </header>
+
+                    <!-- Main Tab Viewer -->
+                    <main class="p-4 lg:p-6 flex-1 flex flex-col">
+                        ${renderMainContent()}
+                    </main>
+                </div>
+
+                <!-- Detail View Popup Modal -->
+                ${renderDetailModal()}
+            `;
+        }
+
+        // Render Navigation Sidebar
+        function renderSidebar() {
+            const tabs = [
+                { id: 'dashboard', label: 'Dashboard', icon: getActivitySvg },
+                { id: 'containers', label: 'Containers', icon: getServerSvg },
+                { id: 'network', label: 'Network', icon: getNetworkSvg },
+                { id: 'storage', label: 'Storage', icon: getHardDriveSvg }
+            ];
+
+            const renderedTabs = tabs.map(tab => {
+                const isActive = state.currentTab === tab.id;
+                return `
+                    <button
+                        onclick="selectTab('${tab.id}')"
+                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold font-outfit transition-all duration-200 shrink-0 ${
+                            isActive 
+                                ? 'bg-violet-600/10 border border-violet-500/20 text-violet-400 shadow-md' 
+                                : 'border border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'
+                        }"
+                    >
+                        ${tab.icon(14, isActive ? 'text-violet-400' : 'text-gray-500')}
+                        <span>${tab.label}</span>
+                    </button>
+                `;
+            }).join('');
+
+            return `
+                <div class="w-full lg:w-64 glass-panel border-r border-gray-900 flex flex-col p-4 shrink-0 lg:h-screen lg:fixed lg:top-0 lg:left-0 z-30">
+                    <div class="flex items-center gap-3 mb-8 px-2 mt-2">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                            ${getServerSvg(18, "text-white")}
+                        </div>
+                        <div>
+                            <h1 class="text-md font-bold tracking-wider font-outfit text-white uppercase leading-none">Andromeda</h1>
+                            <span class="text-[10px] font-mono text-gray-500 font-bold uppercase tracking-widest mt-1 block">Control Center</span>
+                        </div>
+                    </div>
+
+                    <nav class="flex flex-row lg:flex-col gap-1 w-full overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 border-b border-gray-900 lg:border-none">
+                        ${renderedTabs}
+                    </nav>
+
+                    <div class="hidden lg:flex flex-col mt-auto border-t border-gray-900 pt-4 px-2">
+                        <div class="flex justify-between items-center text-[10px] text-gray-500 font-mono font-medium">
+                            <span>Host Uptime:</span>
+                            <span class="text-emerald-400 font-bold">29 days 4h</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-gray-500 font-mono font-medium mt-1">
+                            <span class="text-gray-500">PVE Kernel:</span>
+                            <span class="text-white">6.8.12-pve</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render tab contents
+        function renderMainContent() {
+            switch (state.currentTab) {
+                case 'dashboard':
+                    return renderDashboardTab();
+                case 'containers':
+                    return renderContainersTab();
+                case 'network':
+                    return renderNetworkTab();
+                case 'storage':
+                    return renderStorageTab();
+                default:
+                    return '';
+            }
+        }
+
+        // --- DASHBOARD TAB VIEW ---
+        function renderDashboardTab() {
+            const vpnFlowActive = state.activeFlow === 'all' || state.activeFlow === 'vpn';
+            const exteriorFlowActive = state.activeFlow === 'all' || state.activeFlow === 'exterior';
+            const automationFlowActive = state.activeFlow === 'all' || state.activeFlow === 'automation';
+            const aiFlowActive = state.activeFlow === 'all' || state.activeFlow === 'ai';
+            const storageFlowActive = state.activeFlow === 'all' || state.activeFlow === 'storage';
+
+            return `
+                <div class="flex flex-col gap-6 flex-1">
+                    
+                    <!-- SVG Filters Control Panel -->
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-[#0d0d12] border border-gray-900 p-3 rounded-2xl relative overflow-hidden">
+                        <div class="flex flex-wrap gap-1.5">
+                            <button onclick="selectFlow('all')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-semibold tracking-wide transition-all ${state.activeFlow === 'all' ? 'bg-white/10 border-white/20 text-white' : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-800' }">${getActivitySvg(12, 'text-white')} All Channels</button>
+                            <button onclick="selectFlow('vpn')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-semibold tracking-wide transition-all ${state.activeFlow === 'vpn' ? 'bg-[#8b5cf6]/10 border-[#8b5cf6]/30 text-white' : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-800' }" style="${state.activeFlow === 'vpn' ? 'box-shadow: 0 0 12px rgba(139,92,246,0.1)' : ''}">${getShieldSvg(12, 'text-purple-400')} VPN Tunnel</button>
+                            <button onclick="selectFlow('exterior')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-semibold tracking-wide transition-all ${state.activeFlow === 'exterior' ? 'bg-[#06b6d4]/10 border-[#06b6d4]/30 text-white' : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-800' }" style="${state.activeFlow === 'exterior' ? 'box-shadow: 0 0 12px rgba(6,182,212,0.1)' : ''}">${getGlobeSvg(12, 'text-cyan-400')} Mesh VPN</button>
+                            <button onclick="selectFlow('automation')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-semibold tracking-wide transition-all ${state.activeFlow === 'automation' ? 'bg-[#f97316]/10 border-[#f97316]/30 text-white' : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-800' }" style="${state.activeFlow === 'automation' ? 'box-shadow: 0 0 12px rgba(249,115,22,0.1)' : ''}">${getActivitySvg(12, 'text-orange-400')} Media Logic</button>
+                            <button onclick="selectFlow('ai')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-semibold tracking-wide transition-all ${state.activeFlow === 'ai' ? 'bg-[#eab308]/10 border-[#eab308]/30 text-white' : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-800' }" style="${state.activeFlow === 'ai' ? 'box-shadow: 0 0 12px rgba(234,179,8,0.1)' : ''}">${getCpuSvg(12, 'text-yellow-400')} AI & Labs</button>
+                            <button onclick="selectFlow('storage')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-semibold tracking-wide transition-all ${state.activeFlow === 'storage' ? 'bg-[#ec4899]/10 border-[#ec4899]/30 text-white' : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-800' }" style="${state.activeFlow === 'storage' ? 'box-shadow: 0 0 12px rgba(236,72,153,0.1)' : ''}">${getHardDriveSvg(12, 'text-pink-400')} Disk Map</button>
+                        </div>
+
+                        <div class="flex items-center gap-3 shrink-0">
+                            <button
+                                onclick="toggleSimulation()"
+                                class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold font-outfit transition-all ${
+                                    state.simulating 
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-md shadow-emerald-500/5' 
+                                        : 'bg-gray-800/20 border-gray-800 text-gray-500'
+                                }"
+                            >
+                                <span class="w-1.5 h-1.5 rounded-full ${state.simulating ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}"></span>
+                                <span>${state.simulating ? 'Telemetry ACTIVE' : 'Telemetry OFF'}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Split Map and Sidebar -->
+                    <div class="flex flex-col xl:flex-row gap-6 items-stretch flex-1">
+                        
+                        <!-- Topology SVG Frame -->
+                        <div class="flex-1 bg-[#0a0a0d] border border-gray-900 rounded-2xl p-4 shadow-2xl relative overflow-hidden flex flex-col justify-center min-h-[500px]">
+                            <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
+                            
+                            <svg viewBox="0 0 1300 880" class="w-full h-auto select-none relative z-10">
+                                <defs>
+                                    <filter id="node-glow" x="-10%" y="-10%" width="120%" height="120%">
+                                        <feGaussianBlur stdDeviation="3" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                    <marker id="marker-vpn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="${colors.vpn}" />
+                                    </marker>
+                                    <marker id="marker-ext" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="${colors.exterior}" />
+                                    </marker>
+                                    <marker id="marker-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="${colors.arr}" />
+                                    </marker>
+                                    <marker id="marker-ai" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="${colors.ai}" />
+                                    </marker>
+                                    <marker id="marker-std" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#303038" />
+                                    </marker>
+                                    <marker id="marker-storage" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="${colors.storage}" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Public Internet Node -->
+                                <g transform="translate(480, 30)">
+                                    <rect x="-85" y="0" width="170" height="44" rx="22" fill="#0f1016" stroke="#2a2e3d" stroke-width="1" />
+                                    <text x="15" y="26" text-anchor="middle" class="text-[12px] font-bold fill-white tracking-widest uppercase font-outfit">Public Web</text>
+                                    <g transform="translate(-62, 12)" class="text-blue-400 opacity-40">${getGlobeSvg(18)}</g>
+                                </g>
+
+                                <!-- Tailscale Node -->
+                                <g transform="translate(820, 30)">
+                                    <rect x="-85" y="0" width="170" height="44" rx="22" fill="#0b171c" stroke="${colors.exterior}" stroke-width="1" />
+                                    <text x="12" y="26" text-anchor="middle" class="text-[12px] font-bold fill-white tracking-widest uppercase font-outfit">Tailscale</text>
+                                    <g transform="translate(-60, 12)" class="text-cyan-400 opacity-40">${getNetworkSvg(18)}</g>
+                                </g>
+
+                                <!-- Proxmox Host border -->
+                                <rect x="30" y="125" width="1240" height="695" rx="24" fill="#0b0b0e" stroke="#1c1c24" stroke-width="1.5" />
+                                <text x="50" y="152" class="text-[11px] font-bold fill-gray-600 tracking-widest uppercase font-outfit">Host: Andromeda Virtualized Environment</text>
+
+                                <!-- LAN WAN group -->
+                                <g transform="translate(50, 185)">
+                                    <rect width="180" height="390" rx="16" fill="#0e0e12" stroke="#16161b" />
+                                    <text x="90" y="-12" text-anchor="middle" class="text-[11px] font-bold fill-gray-500 uppercase tracking-wider font-outfit">Gateway & Net</text>
+                                    ${renderSvgNode(25, 25, "Wireguard", colors.vpn, "shield")}
+                                    ${renderSvgNode(25, 145, "qBittorrent", colors.net)}
+                                    ${renderSvgNode(25, 265, "Prowlarr", colors.net)}
+                                </g>
+
+                                <!-- Arr core group -->
+                                <g transform="translate(290, 185)">
+                                    <rect width="470" height="390" rx="16" fill="#0e0e12" stroke="#16161b" />
+                                    <text x="235" y="-12" text-anchor="middle" class="text-[11px] font-bold fill-gray-500 uppercase tracking-wider font-outfit">Media Stack Core</text>
+                                    ${renderSvgNode(25, 25, "Jellyfin", colors.media)}
+                                    ${renderSvgNode(315, 25, "Jellyseerr", colors.media)}
+                                    ${renderSvgNode(25, 145, "Sonarr", colors.arr)}
+                                    ${renderSvgNode(170, 145, "Radarr", colors.arr)}
+                                    ${renderSvgNode(315, 145, "Bazarr", colors.arr)}
+                                    ${renderSvgNode(25, 265, "Lidarr", colors.arr)}
+                                    ${renderSvgNode(170, 265, "Flaresolverr", colors.dash)}
+                                </g>
+
+                                <!-- AI stack -->
+                                <g transform="translate(820, 185)">
+                                    <rect width="180" height="390" rx="16" fill="#0e0e12" stroke="#16161b" />
+                                    <text x="90" y="-12" text-anchor="middle" class="text-[11px] font-bold fill-gray-500 uppercase tracking-wider font-outfit">AI & Automation</text>
+                                    ${renderSvgNode(25, 25, "Ollama", colors.ai)}
+                                    ${renderSvgNode(25, 115, "Open WebUI", colors.ai)}
+                                    ${renderSvgNode(25, 205, "n8n", colors.ai)}
+                                    ${renderSvgNode(25, 295, "Hermes", colors.agent, "bot")}
+                                </g>
+
+                                <!-- General tools -->
+                                <g transform="translate(1060, 185)">
+                                    <rect width="185" height="390" rx="16" fill="#0e0e12" stroke="#16161b" />
+                                    <text x="92.5" y="-12" text-anchor="middle" class="text-[11px] font-bold fill-gray-500 uppercase tracking-wider font-outfit">General Tools</text>
+                                    ${renderSvgNode(27.5, 25, "Homepage", colors.dash)}
+                                    ${renderSvgNode(27.5, 115, "Pulse", colors.dash)}
+                                    ${renderSvgNode(27.5, 205, "Paperless", colors.dash)}
+                                    ${renderSvgNode(27.5, 295, "BentoPDF", colors.dash)}
+                                </g>
+
+                                <!-- HDD slot -->
+                                <g transform="translate(50, 680)">
+                                    <rect width="710" height="42" rx="10" fill="#0d0d12" stroke="${colors.storage}" stroke-width="1.2" stroke-dasharray="6 4" />
+                                    <text x="355" y="26" text-anchor="middle" class="text-[11px] font-bold fill-gray-400 tracking-[0.25em] uppercase font-outfit">
+                                        Mounted HDD Array (Media Bulk Storage Pools)
+                                    </text>
+                                </g>
+
+                                <!-- SSD slot -->
+                                <g transform="translate(30, 755)">
+                                    <rect width="1240" height="42" rx="10" fill="#0d0d12" stroke="${colors.storage}" stroke-width="1.2" />
+                                    <text x="620" y="26" text-anchor="middle" class="text-[11px] font-bold fill-gray-400 tracking-[0.25em] uppercase font-outfit">
+                                        Underlying System NVMe Pool (Container Rootfs, OS Cache, Configurations)
+                                    </text>
+                                </g>
+
+                                <!-- Traffic Paths rendering -->
+                                ${vpnFlowActive ? `
+                                    <g opacity="${state.activeFlow === 'vpn' ? 1 : 0.45}">
+                                        <path d="M 480 74 L 480 100 L 140 100 L 140 210" fill="none" stroke="${colors.vpn}" stroke-width="2.5" marker-end="url(#marker-vpn)" class="${state.simulating ? 'path-flow-fast' : ''}" />
+                                        ${renderSvgPathLabel(340, 98, "Inbound WAN", colors.vpn)}
+                                        <path d="M 140 264 L 140 330" fill="none" stroke="${colors.vpn}" stroke-width="2.5" marker-end="url(#marker-vpn)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        ${renderSvgPathLabel(140, 290, "Secured proxy", colors.vpn, -90)}
+                                    </g>
+                                ` : ''}
+
+                                ${exteriorFlowActive ? `
+                                    <g opacity="${state.activeFlow === 'exterior' ? 1 : 0.45}">
+                                        <path d="M 820 74 L 820 115 L 380 115 L 380 210" fill="none" stroke="${colors.exterior}" stroke-width="2" marker-end="url(#marker-ext)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        ${renderSvgPathLabel(550, 115, "Encrypted Mesh", colors.exterior)}
+                                    </g>
+                                ` : ''}
+
+                                ${automationFlowActive ? `
+                                    <g opacity="${state.activeFlow === 'automation' ? 1 : 0.3}">
+                                        <path d="M 670 264 L 670 330" fill="none" stroke="${colors.arr}" stroke-width="2" marker-end="url(#marker-arr)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 670 290 L 525 290 L 525 330" fill="none" stroke="${colors.arr}" stroke-width="2" marker-end="url(#marker-arr)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 670 290 L 380 290 L 380 330" fill="none" stroke="${colors.arr}" stroke-width="2" marker-end="url(#marker-arr)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 380 384 L 380 410 L 140 410 L 140 450" fill="none" stroke="${colors.arr}" stroke-width="2" marker-end="url(#marker-arr)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 525 384 L 525 410 L 380 410" fill="none" stroke="${colors.arr}" stroke-width="2" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 525 504 L 525 525 L 210 525 L 210 357 L 205 357" fill="none" stroke="${colors.arr}" stroke-width="1.5" marker-end="url(#marker-arr)" class="${state.simulating ? 'path-flow' : ''}" />
+                                    </g>
+                                ` : ''}
+
+                                ${aiFlowActive ? `
+                                    <g opacity="${state.activeFlow === 'ai' ? 1 : 0.3}">
+                                        <path d="M 910 264 L 910 300" fill="none" stroke="${colors.ai}" stroke-width="2" marker-end="url(#marker-ai)" class="${state.simulating ? 'path-flow-fast' : ''}" />
+                                        <path d="M 910 444 L 910 460 L 832 460 L 832 237 L 845 237" fill="none" stroke="${colors.ai}" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#marker-ai)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 910 534 L 910 550 L 988 550 L 988 237 L 975 237" fill="none" stroke="${colors.agent}" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#marker-ai)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        ${renderSvgPathLabel(988, 393, "Agent pipeline", colors.agent, -90)}
+                                    </g>
+                                ` : ''}
+
+                                ${storageFlowActive ? `
+                                    <g opacity="${state.activeFlow === 'storage' ? 1 : 0.25}">
+                                        <path d="M 140 384 L 140 680" fill="none" stroke="${colors.storage}" stroke-width="1.8" marker-end="url(#marker-storage)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 380 264 L 380 680" fill="none" stroke="${colors.storage}" stroke-width="1.8" marker-end="url(#marker-storage)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 380 384 L 380 680" fill="none" stroke="${colors.storage}" stroke-width="1.8" marker-end="url(#marker-storage)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <path d="M 525 384 L 525 680" fill="none" stroke="${colors.storage}" stroke-width="1.8" marker-end="url(#marker-storage)" class="${state.simulating ? 'path-flow' : ''}" />
+                                        <line x1="140" y1="575" x2="140" y2="755" stroke="${colors.storage}" stroke-width="1" stroke-dasharray="2 3" opacity="0.6" />
+                                        <line x1="525" y1="575" x2="525" y2="755" stroke="${colors.storage}" stroke-width="1" stroke-dasharray="2 3" opacity="0.6" />
+                                        <line x1="910" y1="575" x2="910" y2="755" stroke="${colors.storage}" stroke-width="1" stroke-dasharray="2 3" opacity="0.6" />
+                                        <line x1="1152" y1="575" x2="1152" y2="755" stroke="${colors.storage}" stroke-width="1" stroke-dasharray="2 3" opacity="0.6" />
+                                    </g>
+                                ` : ''}
+
+                                ${state.activeFlow === 'all' ? `
+                                    <g opacity="0.15">
+                                        <path d="M 480 74 L 480 110 L 670 110 L 670 210" fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#marker-std)" />
+                                        <path d="M 480 74 L 480 110 L 910 110 L 910 210" fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#marker-std)" />
+                                        <path d="M 480 74 L 480 110 L 1152 110 L 1152 210" fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#marker-std)" />
+                                    </g>
+                                ` : ''}
+                            </svg>
+                        </div>
+
+                        <!-- Right Telemetry Panel -->
+                        <div class="w-full xl:w-[320px] shrink-0 flex flex-col gap-6">
+                            ${renderDashboardTelemetry()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render individual SVG Node
+        function renderSvgNode(x, y, label, color, icon) {
+            const key = labelToKey[label];
+            const data = containersData[key] || {};
+            const isActive = state.selectedNode && state.selectedNode.name === key;
+            const load = state.containerWorkloads[key] || { cpu: 0.8, ram: 10 };
+
+            return `
+                <g 
+                    onclick="selectNode('${label}')"
+                    class="svg-node cursor-pointer group"
+                    style="--node-color: ${color}"
+                    transform="translate(${x}, ${y})"
+                >
+                    <rect 
+                        width="130" 
+                        height="54" 
+                        rx="10" 
+                        fill="#0d0d12" 
+                        stroke="${isActive ? '#ffffff' : color}" 
+                        stroke-width="${isActive ? '1.8' : '1.2'}" 
+                        class="transition-all"
+                    />
+                    <path d="M 0 8 Q 0 0 8 0 L 22 0 L 0 22 Z" fill="${color}" opacity="0.2" />
+                    <text x="65" y="${state.simulating ? '24' : '31'}" text-anchor="middle" class="text-[11px] font-bold fill-white tracking-tight pointer-events-none select-none">${label}</text>
+                    ${state.simulating ? `
+                        <text x="65" y="39" text-anchor="middle" class="text-[8px] font-mono fill-gray-500 font-medium pointer-events-none select-none">
+                            CPU ${load.cpu}% | RAM ${Math.round(load.ram)}%
+                        </text>
+                    ` : ''}
+                    <circle cx="118" cy="12" r="2.5" fill="#10b981" class="animate-pulse" />
+                    ${icon === 'shield' ? `<g transform="translate(6, 6)" class="text-purple-400 opacity-30 scale-[0.6] pointer-events-none">${getShieldSvg()}</g>` : ''}
+                    ${icon === 'bot' ? `<g transform="translate(6, 6)" class="text-purple-400 opacity-30 scale-[0.6] pointer-events-none">${getBotSvg()}</g>` : ''}
+                </g>
+            `;
+        }
+
+        // Render Path Labels on SVG
+        function renderSvgPathLabel(x, y, text, color, rotate = 0) {
+            return `
+                <g transform="translate(${x}, ${y}) rotate(${rotate})">
+                    <rect x="-42" y="-8" width="84" height="16" rx="8" fill="#060608" stroke="${color}" stroke-width="0.5" opacity="0.95" />
+                    <text text-anchor="middle" y="3" class="text-[8px] font-black uppercase tracking-widest pointer-events-none" style="fill: ${color}">${text}</text>
+                </g>
+            `;
+        }
+
+        // Render Dashboard Right Hand Telemetry
+        function renderDashboardTelemetry() {
+            if (!state.selectedNode) {
+                // Host telemetry overall
+                return `
+                    <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between flex-1 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full"></div>
+                        
+                        <div>
+                            <div class="flex items-center gap-2 mb-4">
+                                ${getServerSvg(20, "text-violet-500")}
+                                <h2 class="text-md font-bold font-outfit text-white uppercase tracking-wider font-outfit">Host Node specs</h2>
+                            </div>
+
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 mb-5 text-[11px] leading-relaxed">
+                                <h3 class="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide font-outfit">Hardware Profile</h3>
+                                <ul class="space-y-1 text-gray-300 font-medium font-outfit">
+                                    <li class="flex justify-between"><span class="text-gray-500">Model:</span> Dell Precision 3630</li>
+                                    <li class="flex justify-between"><span class="text-gray-500">CPU:</span> Intel Core i7-8700K</li>
+                                    <li class="flex justify-between"><span class="text-gray-500">Memory:</span> 32 GB DDR4</li>
+                                    <li class="flex justify-between"><span class="text-gray-500">System disk:</span> 512 GB NVMe SSD</li>
+                                    <li class="flex justify-between"><span class="text-gray-500">Media storage:</span> 1 TB bulk HDD</li>
+                                </ul>
+                            </div>
+
+                            <h3 class="text-[10px] font-bold text-gray-500 mb-3 uppercase tracking-wider font-outfit flex justify-between items-center">
+                                <span>Telemetry Real-time Metrics</span>
+                                ${state.simulating ? `<span class="text-[9px] text-emerald-400 animate-pulse font-mono font-bold">LIVE</span>` : ''}
+                            </h3>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1 font-mono">
+                                        <span class="text-gray-500 font-semibold font-outfit">Host CPU Load</span>
+                                        <span class="text-white font-bold">${state.hostMetrics.cpu}%</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden border border-gray-900">
+                                        <div class="h-full bg-blue-500 transition-all duration-300" style="width: ${state.hostMetrics.cpu}%"></div>
+                                    </div>
+
+                                    <!-- Sparkline canvas graph -->
+                                    <div class="h-10 mt-1.5 bg-gray-950/40 rounded border border-gray-900/60 p-0.5 overflow-hidden">
+                                        <svg viewBox="0 0 200 40" class="w-full h-full">
+                                            <path
+                                                d="M ${state.hostMetrics.cpuHistory.map((val, idx) => `${idx * 22.2},${35 - val * 0.35}`).join(' L ')}"
+                                                fill="none"
+                                                stroke="#3b82f6"
+                                                stroke-width="1.5"
+                                                class="transition-all duration-300"
+                                            />
+                                            <path
+                                                d="M 0,40 L ${state.hostMetrics.cpuHistory.map((val, idx) => `${idx * 22.2},${35 - val * 0.35}`).join(' L ')} L 200,40 Z"
+                                                fill="url(#spark-grad)"
+                                                opacity="0.08"
+                                                class="transition-all duration-300"
+                                            />
+                                            <defs>
+                                                <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stop-color="#3b82f6" />
+                                                    <stop offset="100%" stop-color="transparent" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1 font-mono">
+                                        <span class="text-gray-500 font-semibold font-outfit">RAM Usage</span>
+                                        <span class="text-white font-bold">${state.hostMetrics.ram} GB / 32G</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden border border-gray-900">
+                                        <div class="h-full bg-purple-500 transition-all duration-500" style="width: ${(state.hostMetrics.ram / 32) * 100}%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 bg-[#0b0b0e] border border-gray-900 rounded-xl p-2.5">
+                                    <div>
+                                        <div class="text-[9px] text-gray-500 uppercase font-bold tracking-wider mb-0.5 font-outfit">Uplink Tx</div>
+                                        <div class="text-xs font-bold font-mono text-emerald-400 flex items-baseline gap-0.5">
+                                            <span>${state.hostMetrics.tx}</span>
+                                            <span class="text-[9px] text-gray-500 font-semibold font-outfit">MB/s</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="text-[9px] text-gray-500 uppercase font-bold tracking-wider mb-0.5 font-outfit">Downlink Rx</div>
+                                        <div class="text-xs font-bold font-mono text-cyan-400 flex items-baseline gap-0.5">
+                                            <span>${state.hostMetrics.rx}</span>
+                                            <span class="text-[9px] text-gray-500 font-semibold font-outfit">MB/s</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 border-t border-gray-900 pt-4 flex gap-2 text-[11px] text-gray-500 leading-normal font-medium font-outfit">
+                            ${getInfoSvg(14, 'text-blue-500 shrink-0 mt-0.5')}
+                            <span>Click any map node to view specs and inspect live running states.</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Container specs inspector
+                const c = state.selectedNode;
+                return `
+                    <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between flex-1 relative overflow-hidden">
+                        <div>
+                            <button 
+                                onclick="clearSelectedNode()"
+                                class="mb-4 text-[10px] font-bold text-gray-400 hover:text-white transition-colors flex items-center gap-1 bg-gray-900 border border-gray-800 px-2 py-0.5 rounded-lg"
+                            >
+                                ← Show Host Stats
+                            </button>
+
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h2 class="text-md font-bold font-outfit text-white tracking-tight flex items-center gap-2">
+                                        <span>${c.name}</span>
+                                    </h2>
+                                    <span class="text-[10px] font-mono font-bold text-gray-500">LXC ID: ${c.id}</span>
+                                </div>
+                                <span class="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-emerald-500/20">
+                                    <span class="w-1 h-1 bg-emerald-400 rounded-full animate-pulse"></span>
+                                    Active
+                                </span>
+                            </div>
+
+                            <p class="text-[11px] text-gray-400 leading-relaxed font-medium mb-4">${c.desc}</p>
+
+                            <h3 class="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide font-outfit">Assigned Resources</h3>
+                            <div class="space-y-3 mb-5 text-[11px]">
+                                <div>
+                                    <div class="flex justify-between font-mono mb-0.5">
+                                        <span class="text-gray-500 font-semibold font-outfit">CPU Cores limit</span>
+                                        <span class="text-white font-bold">${c.cpu} Cores</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden border border-gray-900">
+                                        <div class="h-full transition-all duration-300" style="width: ${(c.cpu / 12) * 100}%; background-color: ${c.color}"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between font-mono mb-0.5">
+                                        <span class="text-gray-500 font-semibold font-outfit">RAM Allocated</span>
+                                        <span class="text-white font-bold">${c.ram}</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden border border-gray-900">
+                                        <div class="h-full transition-all duration-300" style="width: ${(c.ramVal / 32) * 100}%; background-color: ${c.color}"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between font-mono mb-0.5">
+                                        <span class="text-gray-500 font-semibold font-outfit">Root Disk Size</span>
+                                        <span class="text-white font-bold">${c.disk}</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden border border-gray-900">
+                                        <div class="h-full transition-all duration-300" style="width: ${(c.diskVal / 512) * 100}%; background-color: ${c.color}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wide font-outfit">Networking</h3>
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-2.5 text-[11px] space-y-1.5 text-gray-300 font-medium">
+                                <div class="flex justify-between"><span class="text-gray-500">Bridge:</span><span class="font-mono">${c.bridge}</span></div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">IP:</span>
+                                    <span class="flex items-center gap-1.5 font-mono text-white">
+                                        <span>${c.ip}</span>
+                                        ${c.ip !== 'DHCP' ? `
+                                            <button onclick="copyIp('${c.ip}')" class="text-gray-500 hover:text-white transition-colors">
+                                                ${state.copySuccess ? `<span class="text-[8px] text-emerald-400 font-bold uppercase font-outfit">Copied!</span>` : getCopySvg(10)}
+                                            </button>
+                                        ` : ''}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 border-t border-gray-900 pt-4 flex gap-2">
+                            <button 
+                                onclick="openContainerDetail('${c.name}')"
+                                class="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-800 bg-[#0f0f13] hover:bg-gray-800/50 hover:border-gray-700 text-xs font-bold font-outfit text-white transition-all shadow-md group"
+                            >
+                                <span>Open Guide Docs</span>
+                                ${getExternalLinkSvg(11, "text-gray-400 group-hover:text-white transition-colors")}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- CONTAINERS TAB VIEW ---
+        function renderContainersTab() {
+            // Get filtered list
+            const filtered = Object.values(containersData).filter(c => {
+                const search = state.searchQuery.toLowerCase();
+                const matchesSearch = c.name.toLowerCase().includes(search) || 
+                                     c.id.includes(search) ||
+                                     c.ip.includes(search) ||
+                                     c.desc.toLowerCase().includes(search);
+                const matchesTag = state.filterTag === 'all' || c.tags.includes(state.filterTag);
+                return matchesSearch && matchesTag;
+            });
+
+            // Tags array
+            const allTags = ['all', 'core', 'docker', 'ai', 'ui', 'automation', 'media', 'streaming', 'requests', 'arr', 'network', 'vpn', 'security', 'torrent', 'utility', 'pdf', 'documents', 'proxy', 'workflows', 'inference', 'monitoring', 'ops', 'agent'];
+
+            const tagsMarkup = allTags.map(tag => `
+                <button
+                    onclick="setFilterTag('${tag}')"
+                    class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all duration-150 border ${
+                        state.filterTag === tag 
+                            ? 'bg-violet-600/10 border-violet-500/20 text-violet-400' 
+                            : 'bg-transparent border-gray-900 text-gray-400 hover:border-gray-850'
+                    }"
+                >
+                    ${tag}
+                </button>
+            `).join('');
+
+            const cardsMarkup = filtered.map(c => {
+                const load = state.containerWorkloads[c.name] || { cpu: 0.5, ram: 10 };
+                return `
+                    <div 
+                        onclick="openContainerDetail('${c.name}')"
+                        class="glass-panel glass-card-hover rounded-2xl p-5 cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[190px]"
+                    >
+                        <div class="absolute top-0 left-0 w-1 h-full" style="background-color: ${c.color}"></div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-baseline gap-1.5">
+                                    <h3 class="text-md font-bold font-outfit text-white">${c.name}</h3>
+                                    <span class="text-[9px] font-mono text-gray-500 font-bold">ID: ${c.id}</span>
+                                </div>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            </div>
+
+                            <p class="text-xs text-gray-400 leading-relaxed line-clamp-2 mb-4 font-medium">${c.desc}</p>
+                        </div>
+
+                        <div>
+                            <!-- Resource progress tracks -->
+                            <div class="space-y-2 mb-4 text-[10px] font-mono">
+                                <div>
+                                    <div class="flex justify-between text-gray-500 font-semibold mb-0.5 font-outfit">
+                                        <span>CPU cores allocation</span>
+                                        <span class="text-gray-300">${c.cpu} Cores ${state.simulating ? `(${load.cpu}%)` : ''}</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500" style="width: ${state.simulating ? `${load.cpu * 2}%` : `${(c.cpu / 12) * 100}%`}"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-gray-500 font-semibold mb-0.5 font-outfit">
+                                        <span>Memory limit</span>
+                                        <span class="text-gray-300">${c.ram} ${state.simulating ? `(${Math.round(load.ram)}%)` : ''}</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden">
+                                        <div class="h-full bg-purple-500" style="width: ${state.simulating ? `${load.ram}%` : `${(c.ramVal / 32) * 100}%`}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Badges -->
+                            <div class="flex items-center justify-between border-t border-gray-900 pt-3">
+                                <span class="text-[10px] font-mono text-gray-500 font-medium">${c.ip}</span>
+                                <div class="flex gap-1">
+                                    ${c.tags.map(t => `<span class="text-[9px] bg-gray-900 border border-gray-800 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase">#${t}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="flex flex-col gap-6 flex-1">
+                    
+                    <!-- Search panel filter box -->
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col gap-4">
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-3 text-gray-500">${getSearchSvg()}</span>
+                            <input 
+                                type="text" 
+                                placeholder="Search by container name, ID, IP address, description..."
+                                value="${state.searchQuery}"
+                                oninput="setSearchQuery(this.value)"
+                                class="w-full bg-[#0b0b0e] border border-gray-900 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 transition-colors"
+                            />
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5 items-center">
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mr-1 font-outfit">Filter Tags:</span>
+                            <div class="flex flex-wrap gap-1.5 overflow-x-auto">
+                                ${tagsMarkup}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Containers listing -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        ${cardsMarkup || '<div class="text-xs text-gray-500 col-span-full py-8 text-center font-semibold">No containers found matching search criteria.</div>'}
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // --- NETWORK TAB VIEW ---
+        function renderNetworkTab() {
+            const tableRowsMarkup = Object.values(containersData).map(c => {
+                let badge = '<span class="text-gray-500 font-bold text-[9px] uppercase">Standard Bridged</span>';
+                if (c.name === 'qbittorrent' || c.name === 'prowlarr') {
+                    badge = `<span class="text-purple-400 font-bold flex items-center gap-1 text-[9px] uppercase">${getShieldSvg(10)} VPN-Routed</span>`;
+                } else if (c.name === 'jellyfin') {
+                    badge = `<span class="text-cyan-400 font-bold flex items-center gap-1 text-[9px] uppercase">${getGlobeSvg(10)} Tailscale Mesh</span>`;
+                }
+
+                return `
+                    <tr class="hover:bg-white/2 transition-colors border-b border-gray-900/60">
+                        <td class="py-2.5 px-3 text-gray-500 font-bold">${c.id}</td>
+                        <td class="py-2.5 px-3 text-white font-bold">${c.name}</td>
+                        <td class="py-2.5 px-3 text-cyan-400 font-bold font-mono">${c.ip}</td>
+                        <td class="py-2.5 px-3 text-gray-400 font-mono">${c.bridge}</td>
+                        <td class="py-2.5 px-3">${badge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="flex flex-col gap-6 flex-1 text-xs font-medium text-gray-300">
+                    
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        
+                        <!-- Bridge Card -->
+                        <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-4">
+                                    ${getNetworkSvg(20, "text-cyan-400")}
+                                    <h2 class="text-md font-bold font-outfit text-white uppercase tracking-wider font-outfit">Host Interface Bridge</h2>
+                                </div>
+                                <p class="text-gray-400 leading-relaxed mb-4 font-outfit">
+                                    The primary network controller uses Proxmox bridged interfaces mapping physical ports to internal virtual adapters.
+                                </p>
+
+                                <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 space-y-2 font-mono text-[11px]">
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Bridge Interface:</span><span class="text-white font-bold">vmbr0</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Physical Device:</span><span class="text-white font-bold">eno1 (Intel Corporation)</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">IPv4 Assignment:</span><span class="text-white font-bold">192.168.1.100/24</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Gateway:</span><span class="text-white font-bold">192.168.1.254</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- VPN Proxy card -->
+                        <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-4">
+                                    ${getShieldSvg(20, "text-purple-400")}
+                                    <h2 class="text-md font-bold font-outfit text-white uppercase tracking-wider font-outfit">VPN Gateway Routing</h2>
+                                </div>
+                                <p class="text-gray-400 leading-relaxed mb-4 font-outfit">
+                                    Containers carrying download operations are locked to a Wireguard gateway proxy. Traffic instantly halts if the VPN connection drops.
+                                </p>
+
+                                <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 space-y-2 font-mono text-[11px]">
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">VPN Proxy Container:</span><span class="text-purple-400 font-bold">wireguard (CT 109)</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Routed Client 1:</span><span class="text-white font-semibold">qbittorrent (CT 110) — Torrents</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Routed Client 2:</span><span class="text-white font-semibold">prowlarr (CT 105) — Indexers</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- IP allocation DB table -->
+                    <div class="glass-panel p-5 rounded-2xl">
+                        <h2 class="text-md font-bold font-outfit text-white mb-4 uppercase tracking-wider">IPv4 Allocation Database</h2>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-[11px]">
+                                <thead>
+                                    <tr class="border-b border-gray-900 text-gray-500 uppercase tracking-wider font-bold">
+                                        <th class="py-2.5 px-3">LXC ID</th>
+                                        <th class="py-2.5 px-3">Container Name</th>
+                                        <th class="py-2.5 px-3">Assigned IP Address</th>
+                                        <th class="py-2.5 px-3">Network Gate</th>
+                                        <th class="py-2.5 px-3">Function/Proxy Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-900 font-mono">
+                                    ${tableRowsMarkup}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // --- STORAGE TAB VIEW ---
+        function renderStorageTab() {
+            return `
+                <div class="flex flex-col gap-6 flex-1 text-xs font-medium text-gray-300">
+                    
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        
+                        <!-- NVMe SSD pool -->
+                        <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-pink-500/5 rounded-bl-full border-l border-b border-pink-500/10"></div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-4">
+                                    ${getHardDriveSvg(20, "text-pink-500")}
+                                    <h2 class="text-md font-bold font-outfit text-white uppercase tracking-wider font-outfit">Fast NVMe SSD Pool</h2>
+                                </div>
+                                <p class="text-gray-400 leading-relaxed mb-4 font-outfit">
+                                    Hosts all LXC container systems, databases, runtime configs, and caching indexes. Ensures snappy response and zero system bottlenecks.
+                                </p>
+
+                                <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 space-y-2 font-mono text-[11px] mb-4">
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Hardware device:</span><span class="text-white">nvme0n1</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Model:</span><span class="text-white">Patriot M.2 P320</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Size capacity:</span><span class="text-white">512 GB (476.9 GB Available)</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Pool Role:</span><span class="text-pink-400 font-bold">System Root, Databases, & Configs</span></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-500 mb-1 font-bold uppercase font-outfit">Pool Allocation Status</div>
+                                <div class="w-full h-2 bg-gray-950 border border-gray-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-pink-500" style="width: 42%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Storage HDD -->
+                        <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-amber-500/5 rounded-bl-full border-l border-b border-amber-500/10"></div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-4">
+                                    ${getHardDriveSvg(20, "text-amber-500")}
+                                    <h2 class="text-md font-bold font-outfit text-white uppercase tracking-wider font-outfit">Bulk Media HDD Array</h2>
+                                </div>
+                                <p class="text-gray-400 leading-relaxed mb-4 font-outfit">
+                                    Stores libraries of high-capacity movies, television episodes, music logs, and unfinished downloads.
+                                </p>
+
+                                <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 space-y-2 font-mono text-[11px] mb-4">
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Hardware device:</span><span class="text-white">sda</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Model:</span><span class="text-white">WDC WD10EARS-00MVWB0</span></div>
+                                    <div class="flex justify-between border-b border-gray-900 pb-1.5"><span class="text-gray-500">Size capacity:</span><span class="text-white">1 TB (931.5 GB Available)</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Pool Role:</span><span class="text-amber-400 font-bold">Media storage, Torrents & Music</span></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-500 mb-1 font-bold uppercase font-outfit">Pool Allocation Status</div>
+                                <div class="w-full h-2 bg-gray-950 border border-gray-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-amber-500" style="width: 78%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Strategy Card -->
+                    <div class="glass-panel p-5 rounded-2xl">
+                        <h2 class="text-md font-bold font-outfit text-white mb-3 uppercase tracking-wider font-outfit">Tiering Strategy & Operations</h2>
+                        <p class="text-gray-400 leading-relaxed mb-4 text-xs font-outfit">
+                            We employ physical storage tiering to isolate continuous file reading/writing from background application performance.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-outfit">
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3">
+                                <h3 class="text-white font-bold mb-1">Tier 1: SSD Tier (High IOPS)</h3>
+                                <p class="text-[11px] text-gray-500 leading-relaxed">
+                                    Runs Postgres, SQLite databases, hermes agents, config cache blocks, homepage dashboard scripts. Quick response is guaranteed.
+                                </p>
+                            </div>
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3">
+                                <h3 class="text-white font-bold mb-1">Tier 2: HDD Tier (High Density)</h3>
+                                <p class="text-[11px] text-gray-500 leading-relaxed">
+                                    Mounted directory links directly into qBittorrent download locations and Jellyfin media libraries. Optimized for sequential speeds.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // Render Details modal popup
+        function renderDetailModal() {
+            if (!state.detailContainer) return '';
+
+            const c = state.detailContainer;
+            return `
+                <div class="fixed inset-0 bg-black/85 backdrop-filter backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div class="bg-[#111116] border border-gray-900 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                        
+                        <!-- Accent border top -->
+                        <div class="absolute top-0 left-0 w-full h-1.5" style="background-color: ${c.color}"></div>
+
+                        <!-- Close x button -->
+                        <button 
+                            onclick="closeContainerDetail()"
+                            class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors text-xs font-bold bg-gray-900 border border-gray-800 px-3 py-1 rounded-xl"
+                        >
+                            ✕ Close
+                        </button>
+
+                        <div class="flex items-start justify-between mb-4 mt-2 font-outfit">
+                            <div>
+                                <h2 class="text-xl font-bold text-white tracking-tight flex items-baseline gap-2">
+                                    <span>${c.name}</span>
+                                    <span class="text-xs text-gray-500 font-mono font-bold">LXC ID: ${c.id}</span>
+                                </h2>
+                                <p class="text-xs text-gray-500 font-mono mt-0.5">IPV4 address: ${c.ip}</p>
+                            </div>
+
+                            <span class="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">
+                                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                                Active
+                            </span>
+                        </div>
+
+                        <!-- Tag Badges -->
+                        <div class="flex flex-wrap gap-1 mb-5">
+                            ${c.tags.map(t => `
+                                <span class="text-[10px] font-bold bg-gray-900 border border-gray-800 text-gray-400 px-2.5 py-0.5 rounded-full uppercase font-outfit">
+                                    #${t}
+                                </span>
+                            `).join('')}
+                        </div>
+
+                        <!-- Main Deployment spec panel -->
+                        <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-4 mb-5">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 font-outfit">Deployment Description</h3>
+                            <p class="text-xs text-gray-300 leading-relaxed font-medium font-outfit">
+                                ${c.desc}
+                            </p>
+                        </div>
+
+                        <!-- Resource progress tracks -->
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 font-outfit">Assigned Resources limits</h3>
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] text-gray-500 font-bold uppercase font-outfit">CPU allocation</span>
+                                <span class="text-sm font-bold font-mono text-white mt-1">${c.cpu} Cores</span>
+                                <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden mt-2">
+                                    <div class="h-full" style="width: ${(c.cpu / 12) * 100}%; background-color: ${c.color}"></div>
+                                </div>
+                            </div>
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] text-gray-500 font-bold uppercase font-outfit">Memory pool</span>
+                                <span class="text-sm font-bold font-mono text-white mt-1">${c.ram}</span>
+                                <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden mt-2">
+                                    <div class="h-full" style="width: ${(c.ramVal / 32) * 100}%; background-color: ${c.color}"></div>
+                                </div>
+                            </div>
+                            <div class="bg-[#0b0b0e] border border-gray-900 rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] text-gray-500 font-bold uppercase font-outfit">Storage Disk</span>
+                                <span class="text-sm font-bold font-mono text-white mt-1">${c.disk}</span>
+                                <div class="w-full h-1 bg-gray-950 rounded-full overflow-hidden mt-2">
+                                    <div class="h-full" style="width: ${(c.diskVal / 512) * 100}%; background-color: ${c.color}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick links -->
+                        <div class="flex flex-col sm:flex-row gap-3 border-t border-gray-900 pt-4 mt-2 font-outfit">
+                            <a 
+                                href="${c.docLink}" 
+                                target="_blank" 
+                                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-800 bg-[#0f0f13] hover:bg-gray-850/50 hover:border-gray-700 text-xs font-bold text-white transition-all shadow-md group"
+                            >
+                                ${getBookOpenSvg(12)}
+                                <span>Official Documentation</span>
+                                ${getExternalLinkSvg(10, "text-gray-500 group-hover:text-white")}
+                            </a>
+                            <a 
+                                href="${c.scriptLink}" 
+                                target="_blank" 
+                                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-800 bg-[#0f0f13] hover:bg-gray-850/50 hover:border-gray-700 text-xs font-bold text-white transition-all shadow-md group"
+                            >
+                                ${getTerminalSvg(12)}
+                                <span>Proxmox Helper Script</span>
+                                ${getExternalLinkSvg(10, "text-gray-500 group-hover:text-white")}
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Render Initialization ---
+        updateUI();
+    </script>
+</body>
+
+</html>
