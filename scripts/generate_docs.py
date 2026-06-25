@@ -69,9 +69,25 @@ SERVICE_DESCRIPTIONS = {
         "desc": "Lightweight server monitoring hub.",
         "url": "https://beszel.tech/"
     },
-    "tools": {
-        "desc": "General utility container for maintenance and tools.",
-        "url": "#"
+    "docker": {
+        "desc": "Docker LXC environment for running containerized workloads.",
+        "url": "https://helper-scripts.com/"
+    },
+    "openwebui": {
+        "desc": "Web-based UI for interacting with local LLMs via Ollama.",
+        "url": "https://docs.openwebui.com/"
+    },
+    "pulse": {
+        "desc": "Real-time Proxmox VE monitoring dashboard with alerting.",
+        "url": "https://github.com/community-scripts/ProxmoxVE/"
+    },
+    "hermesagent": {
+        "desc": "AI agent platform for autonomous task execution and automation.",
+        "url": "https://hermes-agent.nousresearch.com/docs/"
+    },
+    "lidarr": {
+        "desc": "Music collection manager for Usenet and BitTorrent users.",
+        "url": "https://wiki.servarr.com/lidarr"
     }
 }
 
