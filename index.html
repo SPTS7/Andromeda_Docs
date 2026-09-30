@@ -143,7 +143,8 @@
             <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" /></svg>
         `;
 
-        // --- Container Specs Dataset ---\n        let containersData = {};\n\n        async function loadContainers() {\n            try {\n                const response = await fetch('data/containers.json');\n                containersData = await response.json();\n                updateUI();\n            } catch (e) {\n                console.error(\"Failed to load containers data\", e);\n            }\n        }\n\n        // Initialize data load\n        loadContainers();
+        // --- Container Specs Dataset ---
+        const containersData = {
             docker: { id: "100", name: "docker", status: "running", ip: "192.168.1.0", bridge: "vmbr0", cpu: 2, ram: "2.00 GiB", ramVal: 2, disk: "4.00 GiB", diskVal: 4, desc: "Docker LXC environment for running containerized workloads, databases, and application runtimes. This serves as the host VM for standalone Docker containers that do not warrant individual LXCs.", tags: ["core", "docker"], color: "#3b82f6", docLink: "https://www.docker.com/", scriptLink: "https://helper-scripts.com/" },
             openwebui: { id: "101", name: "openwebui", status: "running", ip: "192.168.1.1", bridge: "vmbr0", cpu: 4, ram: "8.00 GiB", ramVal: 8, disk: "50.00 GiB", diskVal: 50, desc: "Web-based UI for interacting with local Large Language Models (LLMs) via Ollama. It supports multi-user login, chat history, custom agent presets, and RAG document ingestion pipelines.", tags: ["ai", "ui", "automation"], color: "#eab308", docLink: "https://docs.openwebui.com/", scriptLink: "https://helper-scripts.com/" },
             homepage: { id: "102", name: "homepage", status: "running", ip: "192.168.1.2", bridge: "vmbr0", cpu: 2, ram: "4.00 GiB", ramVal: 4, disk: "6.00 GiB", diskVal: 6, desc: "A modern, static, fast, secure application dashboard. It features live service integration widgets for Proxmox, Docker, Jellyfin, qBittorrent, and more, displaying metrics directly.", tags: ["dashboard", "ui"], color: "#64748b", docLink: "https://gethomepage.dev/", scriptLink: "https://helper-scripts.com/" },
@@ -170,7 +171,7 @@
             "qBittorrent": "qbittorrent",
             "Prowlarr": "prowlarr",
             "Jellyfin": "jellyfin",
-            "Seerr": "seerr",
+            "Jellyseerr": "jellyseerr",
             "Sonarr": "sonarr",
             "Radarr": "radarr",
             "Bazarr": "bazarr",
