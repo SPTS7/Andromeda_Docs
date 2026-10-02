@@ -1,0 +1,94 @@
+{
+  "pools": [
+    {
+      "name": "rpool",
+      "device": "nvme0n1",
+      "deviceModel": "Patriot M.2 P320 512GB",
+      "size": "476.9 GB",
+      "type": "NVMe SSD (ZFS RAID0)",
+      "used": "87.4 GB",
+      "available": "370 GB",
+      "usagePercent": 19,
+      "role": "Host OS Root, LXC Root Disks, System Cache",
+      "color": "#ec4899",
+      "partitions": [
+        { "name": "nvme0n1p1", "size": "1007 KB", "type": "BIOS Boot" },
+        { "name": "nvme0n1p2", "size": "1.0 GB", "type": "vfat (EFI System Partition)" },
+        { "name": "nvme0n1p3", "size": "475.9 GB", "type": "ZFS Member (rpool)" }
+      ],
+      "datasets": [
+        { "name": "rpool/ROOT/pve-1", "mountpoint": "/", "used": "5.27 GB", "desc": "Proxmox Host OS Root filesystem" },
+        { "name": "rpool/data", "mountpoint": "/rpool/data", "used": "49.2 GB", "desc": "LXC Container rootfs subvolumes (CT 100-118)" },
+        { "name": "rpool/var-lib-vz", "mountpoint": "/var/lib/vz", "used": "32.8 GB", "desc": "Container templates, ISO images, and local storage" }
+      ]
+    },
+    {
+      "name": "media-pool",
+      "device": "sda",
+      "deviceModel": "WDC Bulk Storage 8TB HDD",
+      "size": "7.3 TB",
+      "type": "Bulk Storage HDD (ZFS)",
+      "used": "779 GB",
+      "available": "6.38 TB",
+      "usagePercent": 11,
+      "role": "High-Capacity Media Archive (Movies, Shows, Music, Torrents)",
+      "color": "#3b82f6",
+      "partitions": [
+        { "name": "sda1", "size": "7.3 TB", "type": "ZFS Member (media-pool)" },
+        { "name": "sda9", "size": "8.0 MB", "type": "ZFS Reserved" }
+      ],
+      "datasets": [
+        { "name": "media-pool", "mountpoint": "/mnt/media", "used": "779 GB", "desc": "Shared media storage bind-mounted into Jellyfin, Arr stack, and qBittorrent" }
+      ]
+    },
+    {
+      "name": "experiments",
+      "device": "sdb",
+      "deviceModel": "WDC WD10EARS 1TB HDD",
+      "size": "931.5 GB",
+      "type": "Fallback & Backup Target (ZFS)",
+      "used": "808 KB",
+      "available": "899 GB",
+      "usagePercent": 1,
+      "role": "Proxmox vzdump Backup Target & Experimental Workspace",
+      "color": "#f59e0b",
+      "partitions": [
+        { "name": "sdb1", "size": "931.5 GB", "type": "ZFS Member (experiments pool)" },
+        { "name": "sdb9", "size": "8.0 MB", "type": "ZFS Reserved" }
+      ],
+      "datasets": [
+        { "name": "experiments", "mountpoint": "/mnt/experiments", "used": "96 KB", "desc": "Root experiments dataset" },
+        { "name": "experiments/ssd-backups", "mountpoint": "/mnt/experiments/ssd-backups", "used": "172 KB", "desc": "Designated directory for automated PVE container backups (local-experiments-backup)" }
+      ]
+    }
+  ],
+  "pveStorage": [
+    {
+      "id": "local-zfs",
+      "type": "zfspool",
+      "pool": "rpool/data",
+      "content": "rootdir,images",
+      "used": "49.2 GB",
+      "maxdisk": "419.2 GB",
+      "status": "available"
+    },
+    {
+      "id": "local",
+      "type": "dir",
+      "path": "/var/lib/vz",
+      "content": "backup,vztmpl,iso",
+      "used": "32.8 GB",
+      "maxdisk": "402.8 GB",
+      "status": "available"
+    },
+    {
+      "id": "local-experiments-backup",
+      "type": "dir",
+      "path": "/mnt/experiments/ssd-backups",
+      "content": "backup",
+      "used": "172 KB",
+      "maxdisk": "899 GB",
+      "status": "available"
+    }
+  ]
+}

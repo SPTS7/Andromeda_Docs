@@ -5,19 +5,17 @@
     "status": "running",
     "ip": "192.168.1.0",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "2.00 GiB",
     "ramVal": 2,
     "disk": "4.00 GiB",
     "diskVal": 4,
     "desc": "Docker LXC environment for running containerized workloads.",
-    "tags": [
-      "core",
-      "docker"
-    ],
+    "tags": ["core", "docker"],
     "color": "#3b82f6",
     "docLink": "https://www.docker.com/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "seerr": {
     "id": "101",
@@ -25,19 +23,17 @@
     "status": "running",
     "ip": "192.168.1.1",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 4,
     "ram": "4.00 GiB",
     "ramVal": 4,
     "disk": "12.00 GiB",
     "diskVal": 12,
-    "desc": "Request management for Jellyfin.",
-    "tags": [
-      "media",
-      "requests"
-    ],
+    "desc": "Request management interface for Jellyfin movies and TV series.",
+    "tags": ["media", "requests"],
     "color": "#3b82f6",
-    "docLink": "https://github.com/Fallenbagel/jellyseerr",
-    "scriptLink": "https://helper-scripts.com/"
+    "docLink": "https://docs.seerr.dev/",
+    "scriptLink": "https://community-scripts.org/"
   },
   "homepage": {
     "id": "102",
@@ -45,19 +41,17 @@
     "status": "running",
     "ip": "192.168.1.2",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "4.00 GiB",
     "ramVal": 4,
     "disk": "6.00 GiB",
     "diskVal": 6,
-    "desc": "Static application dashboard.",
-    "tags": [
-      "dashboard",
-      "ui"
-    ],
+    "desc": "Modern, fast, static application dashboard serving as the home server portal.",
+    "tags": ["dashboard", "ui"],
     "color": "#64748b",
     "docLink": "https://gethomepage.dev/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "jellyfin": {
     "id": "103",
@@ -65,19 +59,18 @@
     "status": "running",
     "ip": "192.168.1.3",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 5,
     "ram": "4.00 GiB",
     "ramVal": 4,
     "disk": "30.00 GiB",
     "diskVal": 30,
-    "desc": "The Free Software Media System.",
-    "tags": [
-      "media",
-      "streaming"
-    ],
+    "desc": "The Free Software Media System. Direct access to 8TB bulk media pool with hardware transcoding passthrough.",
+    "tags": ["media", "streaming"],
     "color": "#3b82f6",
+    "mounts": ["/mnt/media -> /media"],
     "docLink": "https://jellyfin.org/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "prowlarr": {
     "id": "105",
@@ -85,19 +78,17 @@
     "status": "running",
     "ip": "192.168.1.5",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.9",
     "cpu": 2,
     "ram": "1.00 GiB",
     "ramVal": 1,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Indexer manager/proxy.",
-    "tags": [
-      "arr",
-      "network"
-    ],
+    "desc": "Indexer manager/proxy integrating with Usenet and Torrent indexers. Routed via WireGuard.",
+    "tags": ["arr", "network", "indexers"],
     "color": "#f97316",
-    "docLink": "https://prowlarr.com/",
-    "scriptLink": "https://helper-scripts.com/"
+    "docLink": "https://wiki.servarr.com/prowlarr",
+    "scriptLink": "https://community-scripts.org/"
   },
   "bazarr": {
     "id": "106",
@@ -105,19 +96,18 @@
     "status": "running",
     "ip": "192.168.1.6",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "1.00 GiB",
     "ramVal": 1,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Subtitle downloading agent.",
-    "tags": [
-      "arr",
-      "subtitles"
-    ],
+    "desc": "Subtitle management companion for Sonarr and Radarr.",
+    "tags": ["arr", "subtitles"],
     "color": "#f97316",
-    "docLink": "https://www.bazarr.media/",
-    "scriptLink": "https://helper-scripts.com/"
+    "mounts": ["/mnt/media -> /media"],
+    "docLink": "https://wiki.bazarr.media/",
+    "scriptLink": "https://community-scripts.org/"
   },
   "sonarr": {
     "id": "107",
@@ -125,19 +115,18 @@
     "status": "running",
     "ip": "192.168.1.7",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "1.00 GiB",
     "ramVal": 1,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Smart TV show PVR.",
-    "tags": [
-      "arr",
-      "pvr"
-    ],
+    "desc": "Smart TV show PVR for Usenet and BitTorrent.",
+    "tags": ["arr", "pvr", "tv"],
     "color": "#f97316",
+    "mounts": ["/mnt/media -> /media"],
     "docLink": "https://sonarr.tv/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "radarr": {
     "id": "108",
@@ -145,19 +134,18 @@
     "status": "running",
     "ip": "192.168.1.8",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "1.00 GiB",
     "ramVal": 1,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Movie collection manager.",
-    "tags": [
-      "arr",
-      "pvr"
-    ],
+    "desc": "Movie collection manager and automatic downloader.",
+    "tags": ["arr", "pvr", "movies"],
     "color": "#f97316",
+    "mounts": ["/mnt/media -> /media"],
     "docLink": "https://radarr.video/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "wireguard": {
     "id": "109",
@@ -165,20 +153,17 @@
     "status": "running",
     "ip": "192.168.1.9",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 1,
     "ram": "512.00 MiB",
     "ramVal": 0.5,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Secure VPN tunnel.",
-    "tags": [
-      "vpn",
-      "network",
-      "security"
-    ],
+    "desc": "Fast, modern VPN gateway acting as the egress point for indexer and torrent downloads.",
+    "tags": ["vpn", "network", "security"],
     "color": "#8b5cf6",
     "docLink": "https://www.wireguard.com/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "qbittorrent": {
     "id": "110",
@@ -186,19 +171,18 @@
     "status": "running",
     "ip": "192.168.1.10",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.9",
     "cpu": 2,
     "ram": "2.00 GiB",
     "ramVal": 2,
     "disk": "8.00 GiB",
     "diskVal": 8,
-    "desc": "Bittorrent client.",
-    "tags": [
-      "torrent",
-      "network"
-    ],
+    "desc": "BitTorrent client with Web UI. Traffic locked to WireGuard VPN gateway.",
+    "tags": ["torrent", "network", "downloads"],
     "color": "#10b981",
+    "mounts": ["/mnt/media -> /media"],
     "docLink": "https://www.qbittorrent.org/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "bentopdf": {
     "id": "111",
@@ -206,19 +190,17 @@
     "status": "running",
     "ip": "192.168.1.11",
     "bridge": "vmbr0",
-    "cpu": 1,
+    "gateway": "192.168.1.254",
+    "cpu": 2,
     "ram": "4.00 GiB",
     "ramVal": 4,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Local PDF tool suite.",
-    "tags": [
-      "utility",
-      "pdf"
-    ],
+    "desc": "Local self-hosted web PDF editor and document management tool.",
+    "tags": ["utility", "pdf"],
     "color": "#64748b",
-    "docLink": "https://github.com/hhrutter/pdfcpu",
-    "scriptLink": "https://helper-scripts.com/"
+    "docLink": "https://bentopdf.app/",
+    "scriptLink": "https://community-scripts.org/"
   },
   "paperless-ngx": {
     "id": "112",
@@ -226,19 +208,17 @@
     "status": "running",
     "ip": "192.168.1.12",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "2.00 GiB",
     "ramVal": 2,
     "disk": "10.00 GiB",
     "diskVal": 10,
-    "desc": "Document management system.",
-    "tags": [
-      "utility",
-      "documents"
-    ],
+    "desc": "Community-supported document indexing, OCR, and digital archive solution.",
+    "tags": ["utility", "documents"],
     "color": "#64748b",
     "docLink": "https://docs.paperless-ngx.com/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "flaresolverr": {
     "id": "113",
@@ -246,19 +226,17 @@
     "status": "running",
     "ip": "192.168.1.13",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "2.00 GiB",
     "ramVal": 2,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Cloudflare bypass proxy.",
-    "tags": [
-      "utility",
-      "proxy"
-    ],
+    "desc": "Proxy server to solve Cloudflare and DDoS-GUARD protection challenges for indexers.",
+    "tags": ["utility", "proxy"],
     "color": "#64748b",
     "docLink": "https://github.com/FlareSolverr/FlareSolverr",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "n8n": {
     "id": "114",
@@ -266,19 +244,17 @@
     "status": "running",
     "ip": "192.168.1.14",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "2.00 GiB",
     "ramVal": 2,
     "disk": "10.00 GiB",
     "diskVal": 10,
-    "desc": "Workflow automation tool.",
-    "tags": [
-      "automation",
-      "workflows"
-    ],
+    "desc": "Workflow automation platform connecting APIs, home services, and AI agents.",
+    "tags": ["automation", "workflows"],
     "color": "#eab308",
-    "docLink": "https://n8n.io/",
-    "scriptLink": "https://helper-scripts.com/"
+    "docLink": "https://docs.n8n.io/",
+    "scriptLink": "https://community-scripts.org/"
   },
   "ollama": {
     "id": "115",
@@ -286,19 +262,17 @@
     "status": "running",
     "ip": "192.168.1.15",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 8,
     "ram": "20.00 GiB",
     "ramVal": 20,
     "disk": "35.00 GiB",
     "diskVal": 35,
-    "desc": "Local LLM inference engine.",
-    "tags": [
-      "ai",
-      "inference"
-    ],
+    "desc": "Local LLM inference server with Intel GPU transcoding/passthrough support.",
+    "tags": ["ai", "inference"],
     "color": "#eab308",
     "docLink": "https://ollama.com/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   },
   "pulse": {
     "id": "116",
@@ -306,19 +280,17 @@
     "status": "running",
     "ip": "192.168.1.16",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 1,
     "ram": "1.00 GiB",
     "ramVal": 1,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Proxmox monitoring dashboard.",
-    "tags": [
-      "monitoring",
-      "ops"
-    ],
+    "desc": "Proxmox VE real-time node monitoring and infrastructure health checks.",
+    "tags": ["monitoring", "ops"],
     "color": "#64748b",
-    "docLink": "https://github.com/lucascaro/pulse",
-    "scriptLink": "https://helper-scripts.com/"
+    "docLink": "https://github.com/rcourtman/Pulse",
+    "scriptLink": "https://community-scripts.org/"
   },
   "hermesagent": {
     "id": "117",
@@ -326,17 +298,14 @@
     "status": "running",
     "ip": "192.168.1.17",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "4.00 GiB",
     "ramVal": 4,
     "disk": "20.00 GiB",
     "diskVal": 20,
-    "desc": "Autonomous AI agent platform.",
-    "tags": [
-      "ai",
-      "agent",
-      "automation"
-    ],
+    "desc": "Autonomous agent platform executing background tasks and documentation maintenance.",
+    "tags": ["agent", "ai", "automation"],
     "color": "#a855f7",
     "docLink": "https://hermes-agent.nousresearch.com/docs/",
     "scriptLink": "https://community-scripts.org/"
@@ -347,18 +316,17 @@
     "status": "running",
     "ip": "192.168.1.18",
     "bridge": "vmbr0",
+    "gateway": "192.168.1.254",
     "cpu": 2,
     "ram": "1.00 GiB",
     "ramVal": 1,
     "disk": "4.00 GiB",
     "diskVal": 4,
-    "desc": "Music collection manager.",
-    "tags": [
-      "arr",
-      "pvr"
-    ],
+    "desc": "Music collection manager for Usenet and BitTorrent.",
+    "tags": ["arr", "pvr", "music"],
     "color": "#f97316",
+    "mounts": ["/mnt/media -> /media"],
     "docLink": "https://lidarr.audio/",
-    "scriptLink": "https://helper-scripts.com/"
+    "scriptLink": "https://community-scripts.org/"
   }
 }

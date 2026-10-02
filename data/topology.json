@@ -1,0 +1,92 @@
+{
+  "ingress": [
+    {
+      "id": "public-web",
+      "label": "Public Web",
+      "icon": "globe",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "tailscale",
+      "label": "Tailscale Mesh",
+      "icon": "network",
+      "color": "#06b6d4"
+    }
+  ],
+  "stacks": [
+    {
+      "id": "gateway",
+      "title": "Gateway & Net",
+      "color": "#8b5cf6",
+      "containers": ["wireguard", "qbittorrent", "prowlarr"]
+    },
+    {
+      "id": "media",
+      "title": "Media Stack Core",
+      "color": "#f97316",
+      "containers": ["jellyfin", "seerr", "sonarr", "radarr", "bazarr", "lidarr", "flaresolverr"]
+    },
+    {
+      "id": "ai",
+      "title": "AI & Automation",
+      "color": "#eab308",
+      "containers": ["ollama", "n8n", "hermesagent"]
+    },
+    {
+      "id": "tools",
+      "title": "General Tools",
+      "color": "#64748b",
+      "containers": ["homepage", "pulse", "paperless-ngx", "bentopdf", "docker"]
+    }
+  ],
+  "storageNodes": [
+    {
+      "id": "hdd-array",
+      "label": "Mounted Bulk Media Array (8TB ZFS media-pool -> /mnt/media)",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "backup-array",
+      "label": "1TB Fallback & Backup Target (ZFS experiments -> /mnt/experiments/ssd-backups)",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "nvme-pool",
+      "label": "Underlying System NVMe Pool (512GB ZFS rpool -> /rpool/data)",
+      "color": "#ec4899"
+    }
+  ],
+  "flows": {
+    "vpn": [
+      { "from": "public-web", "to": "wireguard", "label": "Encrypted WAN" },
+      { "from": "wireguard", "to": "qbittorrent", "label": "Tunnel Route" },
+      { "from": "wireguard", "to": "prowlarr", "label": "Proxy Route" }
+    ],
+    "exterior": [
+      { "from": "tailscale", "to": "jellyfin", "label": "Direct Stream" }
+    ],
+    "automation": [
+      { "from": "seerr", "to": "sonarr", "label": "TV Request" },
+      { "from": "seerr", "to": "radarr", "label": "Movie Request" },
+      { "from": "prowlarr", "to": "sonarr", "label": "Index Feeds" },
+      { "from": "prowlarr", "to": "radarr", "label": "Index Feeds" },
+      { "from": "sonarr", "to": "qbittorrent", "label": "Push Torrent" },
+      { "from": "radarr", "to": "qbittorrent", "label": "Push Torrent" },
+      { "from": "bazarr", "to": "sonarr", "label": "Subtitles" },
+      { "from": "bazarr", "to": "radarr", "label": "Subtitles" },
+      { "from": "flaresolverr", "to": "prowlarr", "label": "CF Bypass" }
+    ],
+    "ai": [
+      { "from": "hermesagent", "to": "ollama", "label": "Inference Loop" },
+      { "from": "n8n", "to": "ollama", "label": "Workflow Tasks" }
+    ],
+    "storage": [
+      { "from": "qbittorrent", "to": "hdd-array", "label": "Torrents" },
+      { "from": "jellyfin", "to": "hdd-array", "label": "Library" },
+      { "from": "sonarr", "to": "hdd-array", "label": "Media Mount" },
+      { "from": "radarr", "to": "hdd-array", "label": "Media Mount" },
+      { "from": "lidarr", "to": "hdd-array", "label": "Media Mount" },
+      { "from": "nvme-pool", "to": "backup-array", "label": "PVE vzdump Snapshots" }
+    ]
+  }
+}

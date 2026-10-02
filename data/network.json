@@ -1,0 +1,46 @@
+{
+  "host": {
+    "node": "server",
+    "physicalInterface": "eno1",
+    "driver": "Intel Gigabit NIC",
+    "bridge": "vmbr0",
+    "ip": "192.168.1.100/24",
+    "gateway": "192.168.1.254",
+    "subnet": "192.168.1.0/24"
+  },
+  "vpnRouting": {
+    "gatewayContainer": "wireguard",
+    "vmid": 109,
+    "ip": "192.168.1.9",
+    "description": "All download and indexing traffic is strictly bound to WireGuard (CT 109). If the VPN tunnel drops, client traffic halts.",
+    "routedContainers": [
+      {
+        "name": "prowlarr",
+        "vmid": 105,
+        "ip": "192.168.1.5",
+        "gateway": "192.168.1.9",
+        "role": "Indexer Proxy"
+      },
+      {
+        "name": "qbittorrent",
+        "vmid": 110,
+        "ip": "192.168.1.10",
+        "gateway": "192.168.1.9",
+        "role": "BitTorrent Downloader"
+      }
+    ]
+  },
+  "meshNetwork": {
+    "tailscale": {
+      "enabled": true,
+      "nodes": [
+        {
+          "name": "jellyfin",
+          "vmid": 103,
+          "ip": "192.168.1.3",
+          "role": "Direct media streaming mesh access"
+        }
+      ]
+    }
+  }
+}
