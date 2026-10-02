@@ -2,7 +2,7 @@ import json
 import os
 from datetime import timedelta
 
-DATA_FILE = "proxmox_data.json"
+DATA_FILE = "data/containers.json"
 DOCS_DIR = "docs"
 CONTAINERS_DIR = os.path.join(DOCS_DIR, "containers")
 COMMUNITY_SCRIPTS_URL = "https://helper-scripts.com/"
@@ -93,7 +93,19 @@ SERVICE_DESCRIPTIONS = {
 
 def load_data():
     with open(DATA_FILE, 'r') as f:
-        return json.load(f)
+        data = json.load(f)
+        
+    # Convert dict to list for backward compatibility with the generator functions
+    container_list = []
+    for k, v in data.items():
+        v['type'] = 'lxc'
+        v['vmid'] = v['id']
+        v['maxcpu'] = v['cpu']
+        v['maxmem'] = v['ramVal'] * 1024 * 1024 * 1024
+        v['maxdisk'] = v['diskVal'] * 1024 * 1024 * 1024
+        container_list.append(v)
+    return container_list
+
 
 def format_uptime(seconds):
     return str(timedelta(seconds=int(seconds)))

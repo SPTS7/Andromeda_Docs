@@ -1,20 +1,364 @@
 {
-  "docker": { "id": "100", "name": "docker", "status": "running", "ip": "192.168.1.0", "bridge": "vmbr0", "cpu": 2, "ram": "2.00 GiB", "ramVal": 2, "disk": "4.00 GiB", "diskVal": 4, "desc": "Docker LXC environment for running containerized workloads.", "tags": ["core", "docker"], "color": "#3b82f6", "docLink": "https://www.docker.com/", "scriptLink": "https://helper-scripts.com/" },
-  "seerr": { "id": "101", "name": "seerr", "status": "running", "ip": "192.168.1.1", "bridge": "vmbr0", "cpu": 4, "ram": "8.00 GiB", "ramVal": 8, "disk": "50.00 GiB", "diskVal": 50, "desc": "Request management for Jellyfin.", "tags": ["media", "requests"], "color": "#3b82f6", "docLink": "https://github.com/Fallenbagel/jellyseerr", "scriptLink": "https://helper-scripts.com/" },
-  "homepage": { "id": "102", "name": "homepage", "status": "running", "ip": "192.168.1.2", "bridge": "vmbr0", "cpu": 2, "ram": "4.00 GiB", "ramVal": 4, "disk": "6.00 GiB", "diskVal": 6, "desc": "Static application dashboard.", "tags": ["dashboard", "ui"], "color": "#64748b", "docLink": "https://gethomepage.dev/", "scriptLink": "https://helper-scripts.com/" },
-  "jellyfin": { "id": "103", "name": "jellyfin", "status": "running", "ip": "192.168.1.3", "bridge": "vmbr0", "cpu": 4, "ram": "4.00 GiB", "ramVal": 4, "disk": "16.00 GiB", "diskVal": 16, "desc": "The Free Software Media System.", "tags": ["media", "streaming"], "color": "#3b82f6", "docLink": "https://jellyfin.org/", "scriptLink": "https://helper-scripts.com/" },
-  "prowlarr": { "id": "105", "name": "prowlarr", "status": "running", "ip": "192.168.1.5", "bridge": "vmbr0", "cpu": 2, "ram": "1.00 GiB", "ramVal": 1, "disk": "4.00 GiB", "diskVal": 4, "desc": "Indexer manager/proxy.", "tags": ["arr", "network"], "color": "#f97316", "docLink": "https://prowlarr.com/", "scriptLink": "https://helper-scripts.com/" },
-  "bazarr": { "id": "106", "name": "bazarr", "status": "running", "ip": "192.168.1.6", "bridge": "vmbr0", "cpu": 2, "ram": "1.00 GiB", "ramVal": 1, "disk": "4.00 GiB", "diskVal": 4, "desc": "Subtitle downloading agent.", "tags": ["arr", "subtitles"], "color": "#f97316", "docLink": "https://www.bazarr.media/", "scriptLink": "https://helper-scripts.com/" },
-  "sonarr": { "id": "107", "name": "sonarr", "status": "running", "ip": "192.168.1.7", "bridge": "vmbr0", "cpu": 2, "ram": "1.00 GiB", "ramVal": 1, "disk": "4.00 GiB", "diskVal": 4, "desc": "Smart TV show PVR.", "tags": ["arr", "pvr"], "color": "#f97316", "docLink": "https://sonarr.tv/", "scriptLink": "https://helper-scripts.com/" },
-  "radarr": { "id": "108", "name": "radarr", "status": "running", "ip": "192.168.1.8", "bridge": "vmbr0", "cpu": 2, "ram": "1.00 GiB", "ramVal": 1, "disk": "4.00 GiB", "diskVal": 4, "desc": "Movie collection manager.", "tags": ["arr", "pvr"], "color": "#f97316", "docLink": "https://radarr.video/", "scriptLink": "https://helper-scripts.com/" },
-  "wireguard": { "id": "109", "name": "wireguard", "status": "running", "ip": "192.168.1.9", "bridge": "vmbr0", "cpu": 1, "ram": "512.00 MiB", "ramVal": 0.5, "disk": "4.00 GiB", "diskVal": 4, "desc": "Secure VPN tunnel.", "tags": ["vpn", "network", "security"], "color": "#8b5cf6", "docLink": "https://www.wireguard.com/", "scriptLink": "https://helper-scripts.com/" },
-  "qbittorrent": { "id": "110", "name": "qbittorrent", "status": "running", "ip": "192.168.1.10", "bridge": "vmbr0", "cpu": 2, "ram": "2.00 GiB", "ramVal": 2, "disk": "8.00 GiB", "diskVal": 8, "desc": "Bittorrent client.", "tags": ["torrent", "network"], "color": "#10b981", "docLink": "https://www.qbittorrent.org/", "scriptLink": "https://helper-scripts.com/" },
-  "bentopdf": { "id": "111", "name": "bentopdf", "status": "running", "ip": "192.168.1.11", "bridge": "vmbr0", "cpu": 1, "ram": "4.00 GiB", "ramVal": 4, "disk": "4.00 GiB", "diskVal": 4, "desc": "Local PDF tool suite.", "tags": ["utility", "pdf"], "color": "#64748b", "docLink": "https://github.com/hhrutter/pdfcpu", "scriptLink": "https://helper-scripts.com/" },
-  "paperless-ngx": { "id": "112", "name": "paperless-ngx", "status": "running", "ip": "192.168.1.12", "bridge": "vmbr0", "cpu": 2, "ram": "2.00 GiB", "ramVal": 2, "disk": "10.00 GiB", "diskVal": 10, "desc": "Document management system.", "tags": ["utility", "documents"], "color": "#64748b", "docLink": "https://docs.paperless-ngx.com/", "scriptLink": "https://helper-scripts.com/" },
-  "flaresolverr": { "id": "113", "name": "flaresolverr", "status": "running", "ip": "192.168.1.13", "bridge": "vmbr0", "cpu": 2, "ram": "2.00 GiB", "ramVal": 2, "disk": "4.00 GiB", "diskVal": 4, "desc": "Cloudflare bypass proxy.", "tags": ["utility", "proxy"], "color": "#64748b", "docLink": "https://github.com/FlareSolverr/FlareSolverr", "scriptLink": "https://helper-scripts.com/" },
-  "n8n": { "id": "114", "name": "n8n", "status": "running", "ip": "192.168.1.14", "bridge": "vmbr0", "cpu": 2, "ram": "2.00 GiB", "ramVal": 2, "disk": "10.00 GiB", "diskVal": 10, "desc": "Workflow automation tool.", "tags": ["automation", "workflows"], "color": "#eab308", "docLink": "https://n8n.io/", "scriptLink": "https://helper-scripts.com/" },
-  "ollama": { "id": "115", "name": "ollama", "status": "running", "ip": "192.168.1.15", "bridge": "vmbr0", "cpu": 4, "ram": "4.00 GiB", "ramVal": 4, "disk": "35.00 GiB", "diskVal": 35, "desc": "Local LLM inference engine.", "tags": ["ai", "inference"], "color": "#eab308", "docLink": "https://ollama.com/", "scriptLink": "https://helper-scripts.com/" },
-  "pulse": { "id": "116", "name": "pulse", "status": "running", "ip": "192.168.1.16", "bridge": "vmbr0", "cpu": 1, "ram": "1.00 GiB", "ramVal": 1, "disk": "4.00 GiB", "diskVal": 4, "desc": "Proxmox monitoring dashboard.", "tags": ["monitoring", "ops"], "color": "#64748b", "docLink": "https://github.com/lucascaro/pulse", "scriptLink": "https://helper-scripts.com/" },
-  "hermesagent": { "id": "117", "name": "hermesagent", "status": "running", "ip": "DHCP", "bridge": "vmbr0", "cpu": 2, "ram": "4.00 GiB", "ramVal": 4, "disk": "20.00 GiB", "diskVal": 20, "desc": "Autonomous AI agent platform.", "tags": ["ai", "agent", "automation"], "color": "#a855f7", "docLink": "https://hermes-agent.nousresearch.com/docs/", "scriptLink": "https://community-scripts.org/" },
-  "lidarr": { "id": "118", "name": "lidarr", "status": "running", "ip": "192.168.1.18", "bridge": "vmbr0", "cpu": 2, "ram": "1.00 GiB", "ramVal": 1, "disk": "4.00 GiB", "diskVal": 4, "desc": "Music collection manager.", "tags": ["arr", "pvr"], "color": "#f97316", "docLink": "https://lidarr.audio/", "scriptLink": "https://helper-scripts.com/" }
+  "docker": {
+    "id": "100",
+    "name": "docker",
+    "status": "running",
+    "ip": "192.168.1.0",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "2.00 GiB",
+    "ramVal": 2,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Docker LXC environment for running containerized workloads.",
+    "tags": [
+      "core",
+      "docker"
+    ],
+    "color": "#3b82f6",
+    "docLink": "https://www.docker.com/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "seerr": {
+    "id": "101",
+    "name": "seerr",
+    "status": "running",
+    "ip": "192.168.1.1",
+    "bridge": "vmbr0",
+    "cpu": 4,
+    "ram": "4.00 GiB",
+    "ramVal": 4,
+    "disk": "12.00 GiB",
+    "diskVal": 12,
+    "desc": "Request management for Jellyfin.",
+    "tags": [
+      "media",
+      "requests"
+    ],
+    "color": "#3b82f6",
+    "docLink": "https://github.com/Fallenbagel/jellyseerr",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "homepage": {
+    "id": "102",
+    "name": "homepage",
+    "status": "running",
+    "ip": "192.168.1.2",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "4.00 GiB",
+    "ramVal": 4,
+    "disk": "6.00 GiB",
+    "diskVal": 6,
+    "desc": "Static application dashboard.",
+    "tags": [
+      "dashboard",
+      "ui"
+    ],
+    "color": "#64748b",
+    "docLink": "https://gethomepage.dev/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "jellyfin": {
+    "id": "103",
+    "name": "jellyfin",
+    "status": "running",
+    "ip": "192.168.1.3",
+    "bridge": "vmbr0",
+    "cpu": 5,
+    "ram": "4.00 GiB",
+    "ramVal": 4,
+    "disk": "30.00 GiB",
+    "diskVal": 30,
+    "desc": "The Free Software Media System.",
+    "tags": [
+      "media",
+      "streaming"
+    ],
+    "color": "#3b82f6",
+    "docLink": "https://jellyfin.org/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "prowlarr": {
+    "id": "105",
+    "name": "prowlarr",
+    "status": "running",
+    "ip": "192.168.1.5",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "1.00 GiB",
+    "ramVal": 1,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Indexer manager/proxy.",
+    "tags": [
+      "arr",
+      "network"
+    ],
+    "color": "#f97316",
+    "docLink": "https://prowlarr.com/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "bazarr": {
+    "id": "106",
+    "name": "bazarr",
+    "status": "running",
+    "ip": "192.168.1.6",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "1.00 GiB",
+    "ramVal": 1,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Subtitle downloading agent.",
+    "tags": [
+      "arr",
+      "subtitles"
+    ],
+    "color": "#f97316",
+    "docLink": "https://www.bazarr.media/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "sonarr": {
+    "id": "107",
+    "name": "sonarr",
+    "status": "running",
+    "ip": "192.168.1.7",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "1.00 GiB",
+    "ramVal": 1,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Smart TV show PVR.",
+    "tags": [
+      "arr",
+      "pvr"
+    ],
+    "color": "#f97316",
+    "docLink": "https://sonarr.tv/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "radarr": {
+    "id": "108",
+    "name": "radarr",
+    "status": "running",
+    "ip": "192.168.1.8",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "1.00 GiB",
+    "ramVal": 1,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Movie collection manager.",
+    "tags": [
+      "arr",
+      "pvr"
+    ],
+    "color": "#f97316",
+    "docLink": "https://radarr.video/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "wireguard": {
+    "id": "109",
+    "name": "wireguard",
+    "status": "running",
+    "ip": "192.168.1.9",
+    "bridge": "vmbr0",
+    "cpu": 1,
+    "ram": "512.00 MiB",
+    "ramVal": 0.5,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Secure VPN tunnel.",
+    "tags": [
+      "vpn",
+      "network",
+      "security"
+    ],
+    "color": "#8b5cf6",
+    "docLink": "https://www.wireguard.com/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "qbittorrent": {
+    "id": "110",
+    "name": "qbittorrent",
+    "status": "running",
+    "ip": "192.168.1.10",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "2.00 GiB",
+    "ramVal": 2,
+    "disk": "8.00 GiB",
+    "diskVal": 8,
+    "desc": "Bittorrent client.",
+    "tags": [
+      "torrent",
+      "network"
+    ],
+    "color": "#10b981",
+    "docLink": "https://www.qbittorrent.org/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "bentopdf": {
+    "id": "111",
+    "name": "bentopdf",
+    "status": "running",
+    "ip": "192.168.1.11",
+    "bridge": "vmbr0",
+    "cpu": 1,
+    "ram": "4.00 GiB",
+    "ramVal": 4,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Local PDF tool suite.",
+    "tags": [
+      "utility",
+      "pdf"
+    ],
+    "color": "#64748b",
+    "docLink": "https://github.com/hhrutter/pdfcpu",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "paperless-ngx": {
+    "id": "112",
+    "name": "paperless-ngx",
+    "status": "running",
+    "ip": "192.168.1.12",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "2.00 GiB",
+    "ramVal": 2,
+    "disk": "10.00 GiB",
+    "diskVal": 10,
+    "desc": "Document management system.",
+    "tags": [
+      "utility",
+      "documents"
+    ],
+    "color": "#64748b",
+    "docLink": "https://docs.paperless-ngx.com/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "flaresolverr": {
+    "id": "113",
+    "name": "flaresolverr",
+    "status": "running",
+    "ip": "192.168.1.13",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "2.00 GiB",
+    "ramVal": 2,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Cloudflare bypass proxy.",
+    "tags": [
+      "utility",
+      "proxy"
+    ],
+    "color": "#64748b",
+    "docLink": "https://github.com/FlareSolverr/FlareSolverr",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "n8n": {
+    "id": "114",
+    "name": "n8n",
+    "status": "running",
+    "ip": "192.168.1.14",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "2.00 GiB",
+    "ramVal": 2,
+    "disk": "10.00 GiB",
+    "diskVal": 10,
+    "desc": "Workflow automation tool.",
+    "tags": [
+      "automation",
+      "workflows"
+    ],
+    "color": "#eab308",
+    "docLink": "https://n8n.io/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "ollama": {
+    "id": "115",
+    "name": "ollama",
+    "status": "running",
+    "ip": "192.168.1.15",
+    "bridge": "vmbr0",
+    "cpu": 8,
+    "ram": "20.00 GiB",
+    "ramVal": 20,
+    "disk": "35.00 GiB",
+    "diskVal": 35,
+    "desc": "Local LLM inference engine.",
+    "tags": [
+      "ai",
+      "inference"
+    ],
+    "color": "#eab308",
+    "docLink": "https://ollama.com/",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "pulse": {
+    "id": "116",
+    "name": "pulse",
+    "status": "running",
+    "ip": "192.168.1.16",
+    "bridge": "vmbr0",
+    "cpu": 1,
+    "ram": "1.00 GiB",
+    "ramVal": 1,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Proxmox monitoring dashboard.",
+    "tags": [
+      "monitoring",
+      "ops"
+    ],
+    "color": "#64748b",
+    "docLink": "https://github.com/lucascaro/pulse",
+    "scriptLink": "https://helper-scripts.com/"
+  },
+  "hermesagent": {
+    "id": "117",
+    "name": "hermesagent",
+    "status": "running",
+    "ip": "192.168.1.17",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "4.00 GiB",
+    "ramVal": 4,
+    "disk": "20.00 GiB",
+    "diskVal": 20,
+    "desc": "Autonomous AI agent platform.",
+    "tags": [
+      "ai",
+      "agent",
+      "automation"
+    ],
+    "color": "#a855f7",
+    "docLink": "https://hermes-agent.nousresearch.com/docs/",
+    "scriptLink": "https://community-scripts.org/"
+  },
+  "lidarr": {
+    "id": "118",
+    "name": "lidarr",
+    "status": "running",
+    "ip": "192.168.1.18",
+    "bridge": "vmbr0",
+    "cpu": 2,
+    "ram": "1.00 GiB",
+    "ramVal": 1,
+    "disk": "4.00 GiB",
+    "diskVal": 4,
+    "desc": "Music collection manager.",
+    "tags": [
+      "arr",
+      "pvr"
+    ],
+    "color": "#f97316",
+    "docLink": "https://lidarr.audio/",
+    "scriptLink": "https://helper-scripts.com/"
+  }
 }
